@@ -5,19 +5,15 @@
 %% set up directories
 
 %input dir
-incoming_dir_uab = '';
-incoming_dir_ui = '';
+incoming_dir_xr = 'E:\most-dicom\MOST-DICOM-IN\images\XR';
 
 dpvrf = 'most_inven.mat' %this matlab save file needs to be included in the deployment
 
 % output dir
-dcmdir_out = '';
+dcmdir_out = 'E:\most-dicom\XR_QC\144m';
 
 %% scan directories
-uab_filelist = filetroll(incoming_dir_uab,'*','.*',0,0);
-ui_filelist = filetroll(incoming_dir_ui,'*','.*',0,0);
-
-dicom_xr_list = [uab_filelist; ui_filelist];
+dicom_xr_list = filetroll(incoming_dir_xr,'*','.dcm',0,0);
 
 %% filter out files by filename/filetype
 filter_xr_list = dicom_xr_list;
