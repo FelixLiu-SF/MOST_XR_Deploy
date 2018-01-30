@@ -1,10 +1,11 @@
-
+function [final_dicom_category]=Get_New_XRs_All()
 %% Universal MOST X-ray categorizer
 % this should scan for all new XR files, and categorize them by view and by exam type
 
 %% initialize
 dtstr = datestr(now,'yyyymmddHHMMSS');
 savef = horzcat('XR_files_',dtstr,'.mat');
+final_dicom_category = {};
 
 %% set up directories
 
@@ -14,11 +15,7 @@ mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb'
 %input dir
 incoming_dir_xr = 'E:\most-dicom\MOST-DICOM-IN\images\XR';
 
-% output dir
-dcmdir_out = 'E:\most-dicom\XR_QC\144m';
-
 %% query database for data
-[x_files,f_files] = MDBquery(mdbf,'SELECT * FROM tblFiles');
 [x_exclude,f_exclude] = MDBquery(mdbf,'SELECT * FROM tblFilesExclude');
 [x_category,f_category] = MDBquery(mdbf,'SELECT * FROM tblFilesCategory');
 
@@ -48,14 +45,15 @@ dicom_unblinded = {};
 for ix=1:size(filter_xr_list,1)
 
   try
-    tmpf = filter_xr_list{ix,1};
+    tmpf =    filter_xr_list{ix,1};
     tmpinfo = dicominfo(tmpf);
 
-    tmpSOP = tmpinfo.SOPInstanceUID;
-    tmpID = tmpinfo.PatientID;
+    tmpSOP =  tmpinfo.SOPInstanceUID;
+    tmpID =   tmpinfo.PatientID;
     tmpDate = tmpinfo.StudyDate;
 
     dicom_unblinded = [dicom_unblinded; {tmpf, tmpSOP, tmpID, tmpDate}];
+
   catch metadata_err
     disp('Error reading DICOM metadata');
   end
@@ -72,13 +70,6 @@ mostid_x = indcfind(dicom_unblinded(:,3),'(MB|MI)[0-9]{5}','regexpi');
 
 final_dicom_unblinded = dicom_unblinded(mostid_x,:);
 final_dicom_unblinded = sortrows(final_dicom_unblinded,[4,-3]); %sort by studydate
-
-id_mismatch_x = setdiff([1:size(dicom_unblinded,1)],mostid_x);
-if(size(id_mismatch_x,2)>0)
-    disp('MOST ID mismatch: ');
-    disp([csv_blinded(1,:); dicom_unblinded(id_mismatch_x,:)]);
-end
-
 
 %% analyze for content
 if(size(final_dicom_unblinded,1)>0)
@@ -118,6 +109,6 @@ if(size(final_dicom_unblinded,1)>0)
   save(savef,'final_dicom_category','final_dicom_unblinded')
 
   % upload to database
-
+  UploadToMDB(mdbf,'tblFilesCategory',final_dicom_category);
 
 end %size>0
