@@ -52,7 +52,13 @@ for ix=1:size(filter_xr_list,1)
     tmpID =   tmpinfo.PatientID;
     tmpDate = tmpinfo.StudyDate;
 
-    dicom_unblinded = [dicom_unblinded; {tmpf, tmpSOP, tmpID, tmpDate}];
+    tmp_namefields = fieldnames(tmpinfo.PatientName);
+    tmp_patientname = '';
+    for nx=1:size(tmp_namefields,1)
+        tmp_patientname = horzcat(tmp_patientname,getfield(tmpinfo.PatientName,tmp_namefields{nx}));
+    end
+
+    dicom_unblinded = [dicom_unblinded; {tmpf, tmpSOP, tmpID, tmpDate, tmp_patientname}];
 
   catch metadata_err
     disp('Error reading DICOM metadata');
@@ -93,11 +99,11 @@ if(size(final_dicom_unblinded,1)>0)
 
       % run NN and categorize by NN results
       [view_output]=Get_NeuralNet_XR_Category(tmpid,tmpratio,edge_nn,adj_img,adjc_img,uab_flnet,uab_stitchnet,uab_deepnet,uab_cropnet,ui_deepnet,ui_cropnet);
-      final_dicom_category{ix,5} = view_output;
+      final_dicom_category{ix,6} = view_output;
 
     catch
 
-      final_dicom_category{ix,5} = 'Unknown';
+      final_dicom_category{ix,6} = 'Unknown';
 
     end %try-catch
 
