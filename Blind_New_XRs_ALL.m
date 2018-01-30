@@ -19,10 +19,9 @@ dcmdir_out = 'E:\most-dicom\XR_QC\144m';
 %% grab data from database
 
 % accession numbers
-[x_acc_qc,f_acc_qc] = MDBQuery(mdbf,'SELECT * FROM tblAccNumQC');
-[x_acc_sc,f_acc_sc] = MDBQuery(mdbf,'SELECT * FROM tblAccNumScreening');
-accnum_qc = x_acc_qc{1,1};
-accnum_sc = x_acc_sc{1,1};
+[x_acc,f_acc] = MDBQuery(mdbf,'SELECT * FROM tblAccNum');
+accnum_qc = x_acc{1,indcfind(f_acc,'^QC$','regexpi')};
+accnum_sc = x_acc{1,indcfind(f_acc,'^Screening$','regexpi')};
 
 % all files and categories
 [x_category,f_category] = MDBquery(mdbf,'SELECT * FROM tblFilesCategory');
@@ -33,9 +32,8 @@ accnum_sc = x_acc_sc{1,1};
 [x_screening,f_screening] = MDBquery(mdbf,'SELECT * FROM tblDICOMScreening');
 
 %% filter out processed files by SOP
-SOP_processed = [x_qc(:,2); x_fl(:,2); x_screening(:,2)];
-
-x_unprocessed = x_category(~ismember(x_category(:,2),SOP_processed),:);
+SOP_processed = [x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')); x_fl(:,indcfind(f_fl,'^SOPInstanceUID$','regexpi')); x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'))];
+x_unprocessed = x_category(~ismember(x_category(:,indcfind(f_category,'^SOPInstanceUID$','regexpi')),SOP_processed),:);
 
 %% process and blind all new XRs
 if(size(x_unprocessed,1)>0)
@@ -222,7 +220,6 @@ if(size(x_unprocessed,1)>0)
   %% save accession number counters
 
   %% save .mat file
-  clear conn;
   save(savef);
 
 end %size>0

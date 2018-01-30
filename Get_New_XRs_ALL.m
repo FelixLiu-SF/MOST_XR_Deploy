@@ -29,11 +29,11 @@ filter_xr_list = dicom_xr_list;
 filter_xr_list(indcfind(filter_xr_list(:,1),'(test|phantom)','regexpi'),:) = [];
 
 % exclude files from exclusion list
-files_to_exclude = x_exclude;
+files_to_exclude = x_exclude(:,indcfind(f_exclude,'PatientID','regexpi'));
 filter_xr_list = filter_xr_list(~ismember(filter_xr_list(:,1),files_to_exclude(:,1)),:);
 
 % exclude files previously categorized
-files_already_categorized = x_category;
+files_already_categorized = x_category(:,indcfind(f_category,'PatientID','regexpi'));
 filter_xr_list = filter_xr_list(~ismember(filter_xr_list(:,1),files_already_categorized(:,1)),:);
 
 % filter for only DICOM file formats
@@ -115,6 +115,6 @@ if(size(final_dicom_unblinded,1)>0)
   save(savef,'final_dicom_category','final_dicom_unblinded')
 
   % upload to database
-  UploadToMDB(mdbf,'tblFilesCategory',final_dicom_category);
+  UploadToMDB(mdbf,'tblFilesCategory',{'filename','SOPInstanceUID','PatientID','StudyDate','PatienName','View'},final_dicom_category);
 
 end %size>0
