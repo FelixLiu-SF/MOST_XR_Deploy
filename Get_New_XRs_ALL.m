@@ -2,6 +2,10 @@
 %% Universal MOST X-ray categorizer
 % this should scan for all new XR files, and categorize them by view and by exam type
 
+%% initialize
+dtstr = datestr(now,'yyyymmddHHMMSS');
+savef = horzcat('XR_files_',dtstr,'.mat');
+
 %% set up directories
 
 %database
@@ -15,6 +19,11 @@ dpvrf = 'most_inven.mat' %this matlab save file needs to be included in the depl
 % output dir
 dcmdir_out = 'E:\most-dicom\XR_QC\144m';
 
+%% query database for data
+[x_files,f_files] = MDBquery(mdbf,'SELECT * FROM tblFiles');
+[x_exclude,f_exclude] = MDBquery(mdbf,'SELECT * FROM tblFilesExclude');
+[x_category,f_category] = MDBquery(mdbf,'SELECT * FROM tblFilesCategory');
+
 %% scan directories
 dicom_xr_list = filetroll(incoming_dir_xr,'*','.dcm',0,0);
 
@@ -25,11 +34,11 @@ filter_xr_list = dicom_xr_list;
 filter_xr_list(indcfind(filter_xr_list(:,1),'(test|phantom)','regexpi'),:) = [];
 
 % exclude files from exclusion list
-files_to_exclude = []; %placeholder for data input
+files_to_exclude = x_exclude;
 filter_xr_list = filter_xr_list(~ismember(filter_xr_list(:,1),files_to_exclude(:,1)),:);
 
 % exclude files previously categorized
-files_already_categorized = []; %placeholder for data input
+files_already_categorized = x_category;
 filter_xr_list = filter_xr_list(~ismember(filter_xr_list(:,1),files_already_categorized(:,1)),:);
 
 % filter for only DICOM file formats
@@ -74,6 +83,23 @@ end
 
 
 %% analyze for content
+final_dicom_category = final_dicom_unblinded;
 
+for ix=1:size(final_dicom_unblinded,1)
+
+  tmpf = final_dicom_unblinded{ix,1};
+
+  try
+  % preprocess for NN
+  % run NN
+  % categorize by NN results
+  catch
+
+  end
+end
 
 %% save the results
+
+% save mat file
+
+% upload to database
