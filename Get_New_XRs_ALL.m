@@ -91,27 +91,35 @@ if(size(final_dicom_unblinded,1)>0)
   % make matrix for saving category results
   final_dicom_category = final_dicom_unblinded;
 
-  for ix=1:size(final_dicom_unblinded,1)
+  for ix=1:size(final_dicom_category,1)
 
-    tmpf = final_dicom_unblinded{ix,1};
+    tmpf =  final_dicom_category{ix,1};
+    tmpid = final_dicom_category{ix,3};
+
+    view_output = '';
 
     try
       % preprocess image for NN
       [tmpratio,edge_nn,adj_img,adjc_img]=Preprocess_XR_for_NN(tmpf);
 
+      % run NN and categorize by NN results
+      [view_output]=Get_NeuralNet_XR_Category(tmpid,tmpratio,edge_nn,adj_img,adjc_img,uab_flnet,uab_stitchnet,uab_deepnet,uab_cropnet,ui_deepnet,ui_cropnet);
+      final_dicom_category{ix,5} = view_output;
 
-      % run NN
-      % categorize by NN results
     catch
+
+      final_dicom_category{ix,5} = 'Unknown';
 
     end %try-catch
 
   end
 
+  %% save the results
+
+  % save mat file
+  save(savef,'final_dicom_category','final_dicom_unblinded')
+
+  % upload to database
+  
+
 end %size>0
-
-%% save the results
-
-% save mat file
-
-% upload to database
