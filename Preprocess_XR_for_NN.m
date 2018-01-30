@@ -1,4 +1,4 @@
-function [tmpratio,edge_nn,adj_img,adjc_img]=Preprocess_XR_for_NN(tmpf,tmpid)
+function [tmpratio,edge_nn,adj_img,adjc_img]=Preprocess_XR_for_NN(tmpf)
 
 %% Function for pre-processing x-ray images for neural net classification
 
