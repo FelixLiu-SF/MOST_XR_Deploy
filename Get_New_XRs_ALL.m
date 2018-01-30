@@ -14,8 +14,6 @@ mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb'
 %input dir
 incoming_dir_xr = 'E:\most-dicom\MOST-DICOM-IN\images\XR';
 
-dpvrf = 'most_inven.mat' %this matlab save file needs to be included in the deployment
-
 % output dir
 dcmdir_out = 'E:\most-dicom\XR_QC\144m';
 
@@ -120,6 +118,6 @@ if(size(final_dicom_unblinded,1)>0)
   save(savef,'final_dicom_category','final_dicom_unblinded')
 
   % upload to database
-  
+
 
 end %size>0
