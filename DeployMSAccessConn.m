@@ -11,7 +11,6 @@ end
 try
   connurl = ['jdbc:odbc:Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=' mdbf_in];
   conn = database('','','','sun.jdbc.odbc.JdbcOdbcDriver', connurl);
-  ping(conn)
 
 catch conn_err
 
