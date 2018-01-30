@@ -4,6 +4,9 @@
 
 %% set up directories
 
+%database
+mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb'
+
 %input dir
 incoming_dir_xr = 'E:\most-dicom\MOST-DICOM-IN\images\XR';
 
