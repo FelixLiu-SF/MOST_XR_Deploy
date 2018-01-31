@@ -1,16 +1,21 @@
-function [tmpstudy_out]=Blind_OldCohort_XR_Study(tmpid,tmpstudy,accnum_qc)
+function [tmpstudy_out]=Blind_OldCohort_XR_Study(dcmdir_out,tmpid,tmpstudy,accnum_qc)
 
 %% initialize
 tmpstudy_out = {};
 
-% generate new UIDs
-newstudyuid = dicomuid;
+% organize series types
+loop_series = unique(tmpstudy(:,6));
+unknown_series =  indcfind(tmpstudy(:,6),'Unknown','regexpi');
+empty_series =    indcfind(tmpstudy(:,6),'','empty');
 
 % generate new barcode
 tmpacc1 = zerofillstr(accnum_qc,4);
 tmpacc1 = horzcat('6',tmpacc1);
 
 for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
+
+  % generate new UIDs
+  newstudyuid = dicomuid;
 
   % collect all files for this XR view type
   this_se = loop_series{jx_se,1};
@@ -77,12 +82,6 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
     tmpacc3 = horzcat(tmpacc2,zerofillstr(fx,2));
     new_desc = horzcat(tmpdesc,' ',tmpacc3);
 
-    tmpseries{fx,7} =  tmpacc1;
-    tmpseries{fx,8} =  tmpacc2;
-    tmpseries{fx,9} =  tmpacc3;
-    tmpseries{fx,10} = newstudyuid;
-
-
     % copy file to blinding destination
     newf = horzcat(newdir,'\',tmpacc3);
 
@@ -92,6 +91,13 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
         disp('Filename already exists!');
         disp(newf);
     end
+
+    % save metadata
+    tmpseries{fx,7} =  tmpacc1;
+    tmpseries{fx,8} =  tmpacc2;
+    tmpseries{fx,9} =  tmpacc3;
+    tmpseries{fx,10} = newstudyuid;
+    tmpseries{fx,11} = newf;
 
     % decompress JPEG
     [status,result] = dcmdjpeg(newf,newf);

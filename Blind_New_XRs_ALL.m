@@ -15,6 +15,8 @@ mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb'
 
 %output dir
 dcmdir_out = 'E:\most-dicom\XR_QC\144m';
+dcmdir_out_qc = horzcat(dcmdir_out,'\QC');
+dcmdir_out_sc = horzcat(dcmdir_out,'\Screening');
 
 %% grab data from database
 
@@ -57,10 +59,7 @@ if(size(x_unprocessed,1)>0)
     chk_oldcohort = indcfind(tmpid,'(MB0[0-2][0-9]{3}|MI5[0-2][0-9]{3})','regexpi');
     chk_newcohort = indcfind(tmpid,'(MB0[3-9][0-9]{3}|MI5[3-9][0-9]{3})','regexpi');
 
-    % organize series types
-    loop_series = unique(tmpstudy(:,6));
-    unknown_series =  indcfind(tmpstudy(:,6),'Unknown','regexpi');
-    empty_series =    indcfind(tmpstudy(:,6),'','empty');
+
 
     %% switch blinding by cohort
     if(~isempty(chk_oldcohort) && isempty(chk_newcohort))
@@ -70,7 +69,8 @@ if(size(x_unprocessed,1)>0)
       accnum_qc = accnum_qc+1;
 
       % blind the study for QC
-      [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(tmpid,tmpstudy,accnum_qc);
+      [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
+      % UploadToMDB here
 
     elseif(isempty(chk_oldcohort) && ~isempty(chk_newcohort))
       %% NEW cohort participant, also blind for screening
@@ -79,14 +79,15 @@ if(size(x_unprocessed,1)>0)
       accnum_qc = accnum_qc+1;
 
       % blind the study
-      [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(tmpid,tmpstudy,accnum_qc);
+      [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
+      % UploadToMDB here
 
       % iterate the accession number counter for screening
       accnum_sc = accnum_sc+1;
 
       % blind the study for screening
-      [tmpstudy_newcohort_blinded]=Blind_NewCohort_XR_Study(tmpid,tmpstudy,accnum_qc);
-
+      [tmpstudy_newcohort_blinded]=Blind_NewCohort_XR_Study(dcmdir_out_sc,tmpid,tmpstudy,accnum_qc);
+      % UploadToMDB here
 
     end %blinding by cohort
 
