@@ -115,6 +115,6 @@ if(size(final_dicom_unblinded,1)>0)
   save(savef,'final_dicom_category','final_dicom_unblinded')
 
   % upload to database
-  UploadToMDB(mdbf,'tblFilesCategory',{'filename','SOPInstanceUID','PatientID','StudyDate','PatienName','View'},final_dicom_category);
+  UploadToMDB(mdbf,'tblFilesCategory',{'filename','SOPInstanceUID','PatientID','StudyDate','PatientName','View'},final_dicom_category);
 
 end %size>0
