@@ -13,14 +13,18 @@ final_dicom_category = {};
 mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb'
 
 %input dir
-incoming_dir_xr = 'E:\most-dicom\MOST-DICOM-IN\images\XR';
+incoming_dir_uab = 'E:\most\MOST-Renewal-II\Clinics\UAB\Xray';
+incoming_dir_ui = 'E:\most\MOST-Renewal-II\Clinics\Uiowa\Xray';
 
 %% query database for data
 [x_exclude,f_exclude] = MDBquery(mdbf,'SELECT * FROM tblFilesExclude');
 [x_category,f_category] = MDBquery(mdbf,'SELECT * FROM tblFilesCategory');
 
 %% scan directories
-dicom_xr_list = filetroll(incoming_dir_xr,'*','.dcm',0,0);
+uab_filelist = filetroll(incoming_dir_uab,'*','.dcm',0,0);
+ui_filelist = filetroll(incoming_dir_ui,'*','.dcm',0,0);
+
+dicom_xr_list = [uab_filelist; ui_filelist];
 
 %% filter out files by filename/filetype
 filter_xr_list = dicom_xr_list;
