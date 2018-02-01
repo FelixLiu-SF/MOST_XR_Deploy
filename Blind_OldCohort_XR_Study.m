@@ -99,23 +99,7 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
     tmpseries{fx,10} = newstudyuid;
     tmpseries{fx,11} = newf;
 
-    % decompress JPEG
-    [status,result] = dcmdjpeg(newf,newf);
-    if(status~=0)
-      disp('decompression error!');
-      disp(result);
-      disp(newf);
-    end
-
-    % anonymize blinding file
-    try
-    dicomanon(newf,newf,'keep',{'PatientID','PatientName','AccessionNumber','SeriesNumber','StudyDescription','SeriesDescription','StudyID','StudyInstanceUID','SeriesInstanceUID','SOPInstanceUID'});
-    catch anonerr
-        disp(anonerr);
-        err_img = dicomread(tmpf);
-        dicomwrite(err_img,newf);
-    end
-
+    % generate blinding info
     % blind XR with blinding info
     tagcell = {...
     '(0010,0010)',horzcat(tmpname,'^^^^'),'i';...
@@ -130,29 +114,9 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
     '','','imt';...
     };
 
-    [status,result] = dcmbatchmod(newf,tagcell);
-    try
-        [status,result] = FixXR(newf,tmpinfo);
-    catch
-        try
-            pause(15);
-            [status,result] = FixXR(newf,tmpinfo);
-        catch
-            status = -1;
-        end
-    end
-    if(status(1)~=0)
-        disp('photometric error!');
-        disp(newf);
-    end
-
-    % re-compress JPEG
-    [status,result] = dcmcjpeg(newf,newf);
-    if(status~=0)
-      disp('compression error!');
-      disp(result);
-      disp(newf);
-    end
+    % Anonymize MOST X-ray files
+    [exit_code]=MOST_XR_Anonymize(newf,tagcell);
+    tmpseries{fx,12} = exit_code;
 
   end %fx
 
