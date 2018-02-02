@@ -56,17 +56,19 @@ if(size(x_unprocessed,1)>0)
     tmpname = tmpstudy{1,5};
 
     %% check cohort by ID
-    chk_oldcohort = indcfind(tmpid,'(MB0[0-2][0-9]{3}|MI5[0-2][0-9]{3})','regexpi');
-    chk_newcohort = indcfind(tmpid,'(MB0[3-9][0-9]{3}|MI5[3-9][0-9]{3})','regexpi');
+    chk_oldcohort = regexpi(tmpid,'(MB0[0-2][0-9]{3}|MI5[0-2][0-9]{3})');
+    chk_newcohort = regexpi(tmpid,'(MB0[3-9][0-9]{3}|MI5[3-9][0-9]{3})');
 
-
-
+    
     %% switch blinding by cohort
     if(~isempty(chk_oldcohort) && isempty(chk_newcohort))
       %% OLD cohort participant, do not screen
 
       % iterate the accession number counter for QC
       accnum_qc = accnum_qc+1;
+      
+      % save accession number counters
+      UploadToMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc});
 
       % blind the study for QC
       [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
@@ -77,6 +79,9 @@ if(size(x_unprocessed,1)>0)
 
       % iterate the accession number counter for QC
       accnum_qc = accnum_qc+1;
+      
+      % save accession number counters
+      UploadToMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc});
 
       % blind the study
       [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
@@ -84,6 +89,9 @@ if(size(x_unprocessed,1)>0)
 
       % iterate the accession number counter for screening
       accnum_sc = accnum_sc+1;
+      
+      % save accession number counters
+      UploadToMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc});
 
       % blind the study for screening
       [tmpstudy_newcohort_blinded]=Blind_NewCohort_XR_Study(dcmdir_out_sc,tmpid,tmpstudy,accnum_qc);
@@ -92,10 +100,7 @@ if(size(x_unprocessed,1)>0)
     end %blinding by cohort
 
   end %ix
-
-  %% save accession number counters
-  UploadToMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc}});
-
+  
   %% save .mat file
   save(savef);
 
