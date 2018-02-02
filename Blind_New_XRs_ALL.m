@@ -5,9 +5,6 @@ warning('off','images:dicominfo:fileVRDoesNotMatchDictionary');
 warning('off','Images:initSize:adjustingMag');
 warning('off','images:dicominfo:unhandledCharacterSet');
 
-%% initialize
-savef = horzcat('MOST_XR_BLIND_',datestr(now,'yyyymmddHHMMSS'),'.mat');
-
 %% set up directories
 
 %database
@@ -17,6 +14,9 @@ mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb'
 dcmdir_out = 'E:\most-dicom\XR_QC\144m';
 dcmdir_out_qc = horzcat(dcmdir_out,'\QC');
 dcmdir_out_sc = horzcat(dcmdir_out,'\Screening');
+
+%% initialize
+savef = horzcat(dcmdir_out,'\MOST_XR_BLIND_',datestr(now,'yyyymmddHHMMSS'),'.mat');
 
 %% grab data from database
 
