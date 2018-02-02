@@ -110,8 +110,9 @@ if(size(final_dicom_unblinded,1)>0)
       [view_output]=Get_NeuralNet_XR_Category(tmpid,tmpratio,edge_nn,adj_img,adjc_img);
       final_dicom_category{ix,6} = view_output;
 
-    catch
+    catch nn_err
 
+      disp(nn_err.message);
       final_dicom_category{ix,6} = 'Unknown';
 
     end %try-catch
