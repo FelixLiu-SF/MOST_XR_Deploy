@@ -8,12 +8,12 @@ function [view_output]=Get_NeuralNet_XR_Category(tmpid,tmpratio,edge_nn,adj_img,
 view_output = '';
 
 %% set up neural network functions
-f_uab_flnet = 'most_xr_uab_flnet_20180202';
-f_uab_stitchnet = 'most_xr_uab_stitchnet_20180202';
-f_uab_deepent = 'most_xr_uab_deepnet_20180202';
-f_uab_cropnet = 'most_xr_uab_cropnet_20180202';
-f_ui_deepent = 'most_xr_ui_deepnet_20180202';
-f_ui_cropnet = 'most_xr_ui_cropnet_20180202';
+f_uab_flnet = str2func('most_xr_uab_flnet_20180202');
+f_uab_stitchnet = str2func('most_xr_uab_stitchnet_20180202');
+f_uab_deepnet = str2func('most_xr_uab_deepnet_20180202');
+f_uab_cropnet = str2func('most_xr_uab_cropnet_20180202');
+f_ui_deepnet = str2func('most_xr_ui_deepnet_20180202');
+f_ui_cropnet = str2func('most_xr_ui_cropnet_20180202');
 
 % check ID for clinical site
 if(strcmpi(tmpid(1:2),'MB'))
