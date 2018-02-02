@@ -2,14 +2,14 @@ function [varargout]=DeployMDBquery(mdbf_in,sqlstr)
 % [x_data]=DeployMDBquery(mdbname,sqlstr)
 % [x_data,f_cols]=DeployMDBquery(mdbname,sqlstr)
 %
-% Robust MDBquery using DeployMDBquery.m
+% Robust MDBquery using DeployMSAccessConn.m
 
 %  predefine outputs
 x={};
 f={};
 
 % build connection object to MS Access file
-[conn]=DeployMDBquery(mdbf_in);
+[conn]=DeployMSAccessConn(mdbf_in);
 
 try
     ping(conn);
