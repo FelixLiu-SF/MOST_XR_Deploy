@@ -21,17 +21,17 @@ dcmdir_out_sc = horzcat(dcmdir_out,'\Screening');
 %% grab data from database
 
 % accession numbers
-[x_acc,f_acc] = MDBQuery(mdbf,'SELECT * FROM tblAccNum');
+[x_acc,f_acc] = DeployMDBquery(mdbf,'SELECT * FROM tblAccNum');
 accnum_qc = x_acc{1,indcfind(f_acc,'^QC$','regexpi')};
 accnum_sc = x_acc{1,indcfind(f_acc,'^Screening$','regexpi')};
 
 % all files and categories
-[x_category,f_category] = MDBquery(mdbf,'SELECT * FROM tblFilesCategory');
+[x_category,f_category] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesCategory');
 
 % all processed files
-[x_qc,f_qc] = MDBquery(mdbf,'SELECT * FROM tblDICOMQC');
-[x_fl,f_fl] = MDBquery(mdbf,'SELECT * FROM tblDICOMFullLimb');
-[x_screening,f_screening] = MDBquery(mdbf,'SELECT * FROM tblDICOMScreening');
+[x_qc,f_qc] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMQC');
+[x_fl,f_fl] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMFullLimb');
+[x_screening,f_screening] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMScreening');
 
 %% filter out processed files by SOP
 SOP_processed = [x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')); x_fl(:,indcfind(f_fl,'^SOPInstanceUID$','regexpi')); x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'))];

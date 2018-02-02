@@ -17,8 +17,8 @@ incoming_dir_uab = 'E:\most\MOST-Renewal-II\Clinics\UAB\Xray';
 incoming_dir_ui = 'E:\most\MOST-Renewal-II\Clinics\Uiowa\Xray';
 
 %% query database for data
-[x_exclude,f_exclude] = MDBquery(mdbf,'SELECT * FROM tblFilesExclude');
-[x_category,f_category] = MDBquery(mdbf,'SELECT * FROM tblFilesCategory');
+[x_exclude,f_exclude] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesExclude');
+[x_category,f_category] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesCategory');
 
 %% scan directories
 uab_filelist = filetroll(incoming_dir_uab,'*','.dcm',0,0);
