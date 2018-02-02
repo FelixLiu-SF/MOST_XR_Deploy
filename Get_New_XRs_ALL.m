@@ -33,11 +33,11 @@ filter_xr_list = dicom_xr_list;
 filter_xr_list(indcfind(filter_xr_list(:,1),'(test|phantom)','regexpi'),:) = [];
 
 % exclude files from exclusion list
-files_to_exclude = x_exclude(:,indcfind(f_exclude,'PatientID','regexpi'));
+files_to_exclude = x_exclude(:,indcfind(f_exclude,'filename','regexpi'));
 filter_xr_list = filter_xr_list(~ismember(filter_xr_list(:,1),files_to_exclude(:,1)),:);
 
 % exclude files previously categorized
-files_already_categorized = x_category(:,indcfind(f_category,'PatientID','regexpi'));
+files_already_categorized = x_category(:,indcfind(f_category,'filename','regexpi'));
 filter_xr_list = filter_xr_list(~ismember(filter_xr_list(:,1),files_already_categorized(:,1)),:);
 
 % filter for only DICOM file formats
