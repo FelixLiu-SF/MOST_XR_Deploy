@@ -90,6 +90,8 @@ final_dicom_unblinded = sortrows(final_dicom_unblinded,[4,-3]); %sort by studyda
 %% analyze for content
 if(size(final_dicom_unblinded,1)>0)
 
+  disp(size(final_dicom_unblinded,1));
+
   % make matrix for saving category results
   final_dicom_category = final_dicom_unblinded;
 
@@ -113,6 +115,8 @@ if(size(final_dicom_unblinded,1)>0)
       final_dicom_category{ix,6} = 'Unknown';
 
     end %try-catch
+
+    disp(final_dicom_category(ix,:));
 
   end
 
