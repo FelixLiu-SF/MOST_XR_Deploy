@@ -2,8 +2,6 @@ function [view_output]=Get_NeuralNet_XR_Category(tmpid,tmpratio,edge_nn,adj_img,
 
 %% function for categorizing XR image using neural network inputs
 
-%% work-in-progress
-
 %% initialize output_list
 view_output = '';
 
