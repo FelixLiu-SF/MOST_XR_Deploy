@@ -3,8 +3,6 @@ function [final_dicom_category]=Get_New_XRs_All()
 % this should scan for all new XR files, and categorize them by view and by exam type
 
 %% initialize
-dtstr = datestr(now,'yyyymmddHHMMSS');
-savef = horzcat('XR_files_',dtstr,'.mat');
 final_dicom_category = {};
 
 %% set up directories
@@ -15,6 +13,14 @@ mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb';
 %input dir
 incoming_dir_uab = 'E:\most\MOST-Renewal-II\Clinics\UAB\Xray';
 incoming_dir_ui = 'E:\most\MOST-Renewal-II\Clinics\Uiowa\Xray';
+
+%output dir
+output_dir = 'S:\FelixTemp\XR';
+
+%% set up save file
+dtstr = datestr(now,'yyyymmddHHMMSS');
+savef = horzcat(output_dir,'\XR_files_',dtstr,'.mat');
+
 
 %% query database for data
 [x_exclude,f_exclude] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesExcluded');
