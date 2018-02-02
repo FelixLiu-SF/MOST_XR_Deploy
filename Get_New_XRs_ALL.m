@@ -10,14 +10,14 @@ final_dicom_category = {};
 %% set up directories
 
 %database
-mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb'
+mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb';
 
 %input dir
 incoming_dir_uab = 'E:\most\MOST-Renewal-II\Clinics\UAB\Xray';
 incoming_dir_ui = 'E:\most\MOST-Renewal-II\Clinics\Uiowa\Xray';
 
 %% query database for data
-[x_exclude,f_exclude] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesExclude');
+[x_exclude,f_exclude] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesExcluded');
 [x_category,f_category] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesCategory');
 
 %% scan directories
