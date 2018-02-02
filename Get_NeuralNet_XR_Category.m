@@ -1,11 +1,19 @@
-function [view_output]=Get_NeuralNet_XR_Category(tmpid,tmpratio,edge_nn,adj_img,adjc_img,uab_flnet,uab_stitchnet,uab_deepnet,uab_cropnet,ui_deepnet,ui_cropnet)
+function [view_output]=Get_NeuralNet_XR_Category(tmpid,tmpratio,edge_nn,adj_img,adjc_img)
 
 %% function for categorizing XR image using neural network inputs
 
 %% work-in-progress
 
-% initialize output_list
+%% initialize output_list
 view_output = '';
+
+%% set up neural network functions
+f_uab_flnet = 'most_xr_uab_flnet_20180202';
+f_uab_stitchnet = 'most_xr_uab_stitchnet_20180202';
+f_uab_deepent = 'most_xr_uab_deepnet_20180202';
+f_uab_cropnet = 'most_xr_uab_cropnet_20180202';
+f_ui_deepent = 'most_xr_ui_deepnet_20180202';
+f_ui_cropnet = 'most_xr_ui_cropnet_20180202';
 
 % check ID for clinical site
 if(strcmpi(tmpid(1:2),'MB'))
@@ -14,7 +22,7 @@ if(strcmpi(tmpid(1:2),'MB'))
   if(tmpratio>2.5)
 
     % aspect ratio matches full-limb image
-    stitch_results = uab_stitchnet(edge_nn(:)); %edge image into stitching NN
+    stitch_results = f_uab_stitchnet(edge_nn(:)); %edge image into stitching NN
 
     [~,stitch_max]=max(stitch_results); %check NN results is 4 for FL
     if(abs(stitch_max-4)<eps)
@@ -27,14 +35,14 @@ if(strcmpi(tmpid(1:2),'MB'))
 
     % aspect ratio doesn't match full-limb image
 
-    fl_results = flnet(edge_nn(:)); %edge image into full limb NN
+    fl_results = f_uab_flnet(edge_nn(:)); %edge image into full limb NN
 
     [~,fl_max]=max(fl_results); %check if NN results for unstitched FL image
     if(abs(fl_max-1)<eps)
 
         %image is probably an unstitched full limb image
 
-        stitch_results = stitchnet(edge_nn(:)); %check what kind of unstitched image
+        stitch_results = f_uab_stitchnet(edge_nn(:)); %check what kind of unstitched image
         [~,stitch_max]=max(stitch_results);
 
         % categorize unstitched full limb XR image
@@ -54,11 +62,11 @@ if(strcmpi(tmpid(1:2),'MB'))
     else % image is probably not unstitched full limb image
 
         %full image neural net
-        nn_results = uab_deepnet(adj_img(:));
+        nn_results = f_uab_deepnet(adj_img(:));
         [nno_maxval,nno_max]=max(nn_results);
 
         %cropped image neural net
-        nnc_results = uab_cropnet(adjc_img(:));
+        nnc_results = f_uab_cropnet(adjc_img(:));
         [nnc_maxval,nnc_max]=max(nnc_results);
 
         % compare cropped score vs original score, use the best score
@@ -89,11 +97,11 @@ elseif(strcmpi(tmpid(1:2),'MI'))
   %% UI
 
   %full image neural net
-  nn_results = ui_deepnet(adj_img(:));
+  nn_results = f_ui_deepnet(adj_img(:));
   [nno_maxval,nno_max]=max(nn_results);
 
   %cropped image neural net
-  nnc_results = ui_cropnet(adjc_img(:));
+  nnc_results = f_ui_cropnet(adjc_img(:));
   [nnc_maxval,nnc_max]=max(nnc_results);
 
   % compare cropped score vs original score, use the best score
