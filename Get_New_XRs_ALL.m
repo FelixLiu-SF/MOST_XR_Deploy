@@ -84,9 +84,6 @@ final_dicom_unblinded = sortrows(final_dicom_unblinded,[4,-3]); %sort by studyda
 %% analyze for content
 if(size(final_dicom_unblinded,1)>0)
 
-  % load neural networks
-  [uab_flnet,uab_stitchnet,uab_deepnet,uab_cropnet,ui_deepnet,ui_cropnet]=Load_NeuralNetworks_MOST_XR;
-
   % make matrix for saving category results
   final_dicom_category = final_dicom_unblinded;
 
@@ -102,7 +99,7 @@ if(size(final_dicom_unblinded,1)>0)
       [tmpratio,edge_nn,adj_img,adjc_img]=Preprocess_XR_for_NN(tmpf);
 
       % run NN and categorize by NN results
-      [view_output]=Get_NeuralNet_XR_Category(tmpid,tmpratio,edge_nn,adj_img,adjc_img,uab_flnet,uab_stitchnet,uab_deepnet,uab_cropnet,ui_deepnet,ui_cropnet);
+      [view_output]=Get_NeuralNet_XR_Category(tmpid,tmpratio,edge_nn,adj_img,adjc_img);
       final_dicom_category{ix,6} = view_output;
 
     catch
