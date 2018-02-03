@@ -68,7 +68,7 @@ if(size(x_unprocessed,1)>0)
       accnum_qc = accnum_qc+1;
       
       % save accession number counters
-      UploadToMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc});
+      UpdateMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc},{'WHERE RECORDID=1'});
 
       % blind the study for QC
       [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
@@ -81,20 +81,20 @@ if(size(x_unprocessed,1)>0)
       accnum_qc = accnum_qc+1;
       
       % save accession number counters
-      UploadToMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc});
+      UpdateMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc},{'WHERE RECORDID=1'});
 
       % blind the study
-      [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
+      [tmpstudy_oldcohort_blinded]=Blind_NewCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
       % UploadToMDB here
 
       % iterate the accession number counter for screening
       accnum_sc = accnum_sc+1;
       
       % save accession number counters
-      UploadToMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc});
+      UpdateMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc},{'WHERE RECORDID=1'});
 
       % blind the study for screening
-      [tmpstudy_newcohort_blinded]=Blind_NewCohort_XR_Study(dcmdir_out_sc,tmpid,tmpstudy,accnum_qc);
+      [tmpstudy_newcohort_blinded]=Blind_Screening_XR_Study(dcmdir_out_sc,tmpid,tmpstudy,accnum_sc);
       % UploadToMDB here
 
     end %blinding by cohort
