@@ -30,7 +30,7 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
   end %beam angle
 
   % add unknown/empty series to the PA series
-  if(strmpci(this_se,'PA'))
+  if(strcmpi(this_se,'PA'))
     tmpseries = [tmpseries; tmpseries(unknown_series,:); tmpseries(empty_series,:)];
   end %add unknowns
 
@@ -64,7 +64,7 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
   tmpacc2 = horzcat(tmpacc1,num2str(tmpse));
 
   % generate output directory for this series
-  newdir =  horzcat(dcmdir_out,tmpid,'_',tmpname,'\',tmpacc2);
+  newdir =  horzcat(dcmdir_out,'\',tmpid,'_',tmpname,'\',tmpacc2);
   if(~exist(newdir))
     mkdir(newdir);
   end

@@ -24,6 +24,7 @@ catch anonerr
     dicomwrite(err_img,file_in);
   catch
     exit_code = exit_code + 2;
+  end
 end
 
 try
