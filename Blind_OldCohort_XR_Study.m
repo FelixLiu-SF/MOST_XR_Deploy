@@ -70,6 +70,8 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
   end
 
   %% MISSING CODE FOR GRABBING PRIOR VISIT XRAY IMAGES %%
+  px = indcfind(KXRdata(:,2),tmpid,'regexpi');
+  
 
   %% blind XR images
   for fx=1:size(tmpseries,1)
