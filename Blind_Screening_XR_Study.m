@@ -10,12 +10,18 @@ empty_series =    indcfind(tmpstudy(:,6),'','empty');
 
 % generate new barcode
 tmpacc1 = zerofillstr(accnum_qc,4);
-tmpacc1 = horzcat('6',tmpacc1);
+tmpacc1 = horzcat('F',tmpacc1);
+
+% generate new UIDs
+newstudyuid = dicomuid;
+
+% generate output directory for this study
+newdir =  horzcat(dcmdir_out,'\',tmpid,'_',tmpname,'\',tmpacc1);
+if(~exist(newdir))
+  mkdir(newdir);
+end
 
 for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
-
-  % generate new UIDs
-  newstudyuid = dicomuid;
 
   % collect all files for this XR view type
   this_se = loop_series{jx_se,1};
@@ -45,7 +51,7 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
     case 'PA15'
       tmpse=2;
     case 'LLAT'
-      tmpse=4;
+      tmpse=44; %number the left lateral 44 so it appears in a radiology order
     case 'RLAT'
       tmpse=5;
     case 'Full Limb'
@@ -60,16 +66,9 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
       tmpse=7;
   end
 
-  % generate series qc barcode
+  % generate series screening barcode
   tmpacc2 = horzcat(tmpacc1,num2str(tmpse));
 
-  % generate output directory for this series
-  newdir =  horzcat(dcmdir_out,'\',tmpid,'_',tmpname,'\',tmpacc2);
-  if(~exist(newdir))
-    mkdir(newdir);
-  end
-
-  %% MISSING CODE FOR GRABBING PRIOR VISIT XRAY IMAGES %%
 
   %% blind XR images
   for fx=1:size(tmpseries,1)
@@ -81,6 +80,8 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
 
     tmpacc3 = horzcat(tmpacc2,zerofillstr(fx,2));
     new_desc = horzcat(tmpdesc,' ',tmpacc3);
+
+    tmpse2 = horzcat(num2str(tmpse),zerofillstr(fx,2));
 
     % copy file to blinding destination
     newf = horzcat(newdir,'\',tmpacc3);
@@ -104,8 +105,8 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
     tagcell = {...
     '(0010,0010)',horzcat(tmpname,'^^^^'),'i';...
     '(0010,0020)',tmpid,'i';...
-    '(0008,0050)',tmpacc2,'i';...
-    '(0020,0011)',zerofillstr(fx,2),'i';...
+    '(0008,0050)',tmpacc1,'i';...
+    '(0020,0011)',tmpse2,'i';...
     '(0008,1030)',tmpacc2,'i';...
     '(0008,103E)',new_desc,'i';...
     '(0020,000D)',newstudyuid,'i';...
