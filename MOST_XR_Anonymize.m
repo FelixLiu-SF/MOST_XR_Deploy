@@ -9,6 +9,8 @@ function [exit_code]=MOST_XR_Anonymize(file_in,tagcell)
 % initialize
 exit_code = 0;
 
+tmpinfo = dicominfo(file_in);
+
 % decompress JPEG
 [status,result] = dcmdjpeg(file_in,file_in);
 if(status~=0)
