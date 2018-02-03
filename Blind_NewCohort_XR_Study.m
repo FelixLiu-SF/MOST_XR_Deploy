@@ -69,8 +69,6 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
     mkdir(newdir);
   end
 
-  %% MISSING CODE FOR GRABBING PRIOR VISIT XRAY IMAGES %%
-
   %% blind XR images
   for fx=1:size(tmpseries,1)
 
