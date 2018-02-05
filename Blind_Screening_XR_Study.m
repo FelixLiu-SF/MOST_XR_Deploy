@@ -131,8 +131,13 @@ if(size(loop_series,1)>0)
 
     end %fx
 
+    dellist = filetroll(newdir,'*','.bak',0,1);
+    for dx=1:size(dellist,1)
+        delete(dellist{dx,1});
+    end
+
     tmpstudy_out = [tmpstudy_out; tmpseries];
 
   end %loop_series
 
-end 
+end
