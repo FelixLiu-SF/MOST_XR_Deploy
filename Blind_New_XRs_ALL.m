@@ -7,8 +7,8 @@ warning('off','images:dicominfo:unhandledCharacterSet');
 
 %% initialize
 
-f_up_qc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','StudyInstanceUID','exit_code'};
-f_up_sc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','StudyInstanceUID','exit_code'};
+f_up_qc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','exit_code'};
+f_up_sc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','exit_code'};
 
 %% set up directories
 
@@ -94,7 +94,9 @@ if(size(x_unprocessed,1)>0)
       % blind the study for QC
       [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
       % Upload processed files to MDB
-      UploadToMDB(mdbf,'tblDICOMQC',f_up_qc,tmpstudy_oldcohort_blinded(:,[11,2:9,12]));
+      if(size(tmpstudy_oldcohort_blinded,1)>0)
+        UploadToMDB(mdbf,'tblDICOMQC',f_up_qc,tmpstudy_oldcohort_blinded(:,[11,2:9,12]));
+      end
 
     elseif(isempty(chk_oldcohort) && ~isempty(chk_newcohort))
       %% NEW cohort participant, also blind for screening
@@ -108,7 +110,10 @@ if(size(x_unprocessed,1)>0)
       % blind the study
       [tmpstudy_newcohort_blinded]=Blind_NewCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
       % Upload processed files to MDB
-      UploadToMDB(mdbf,'tblDICOMQC',f_up_qc,tmpstudy_newcohort_blinded(:,[11,2:9,12]));
+      disp(tmpstudy_newcohort_blinded);
+      if(size(tmpstudy_newcohort_blinded,1)>0)
+        UploadToMDB(mdbf,'tblDICOMQC',f_up_qc,tmpstudy_newcohort_blinded(:,[11,2:9,12]));
+      end
 
       % iterate the accession number counter for screening
       accnum_sc = accnum_sc+1;
@@ -119,7 +124,10 @@ if(size(x_unprocessed,1)>0)
       % blind the study for screening
       [tmpstudy_screening_blinded]=Blind_Screening_XR_Study(dcmdir_out_sc,tmpid,tmpstudy,accnum_sc);
       % Upload processed files to MDB
-      UploadToMDB(mdbf,'tblDICOMScreening',f_up_sc,tmpstudy_screening_blinded(:,[11,2:9,12]));
+      disp(tmpstudy_screening_blinded);
+      if(size(tmpstudy_screening_blinded,1)>0)
+        UploadToMDB(mdbf,'tblDICOMScreening',f_up_sc,tmpstudy_screening_blinded(:,[11,2:9,12]));
+      end
 
     end %blinding by cohort
 
