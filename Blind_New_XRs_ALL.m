@@ -13,7 +13,7 @@ f_up_sc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','Vi
 %% set up directories
 
 %database
-mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb'
+mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb';
 
 %output dir
 dcmdir_out = 'E:\most-dicom\XR_QC\144m';
@@ -27,11 +27,19 @@ savef = horzcat(dcmdir_out,'\MOST_XR_BLIND_',datestr(now,'yyyymmddHHMMSS'),'.mat
 
 % accession numbers
 [x_acc,f_acc] = DeployMDBquery(mdbf,'SELECT * FROM tblAccNum');
+pause(1);
 accnum_qc = x_acc{1,indcfind(f_acc,'^QC$','regexpi')};
 accnum_sc = x_acc{1,indcfind(f_acc,'^Screening$','regexpi')};
 
+% all processed files, need to call this early in deployment for some reason, i have no idea why
+[x_qc,f_qc] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMQC');
+pause(1);
+[x_screening,f_screening] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMScreening');
+pause(1);
+
 % all files and categories
 [x_category,f_category] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesCategory');
+pause(1);
 
 % align columns
 f_order = [...
@@ -45,9 +53,6 @@ f_order = [...
 
   x_category = x_category(:,f_order);
 
-% all processed files
-[x_qc,f_qc] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMQC');
-[x_screening,f_screening] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMScreening');
 
 %% filter out processed files by SOP
 SOP_processed = [x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')); x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'))];
@@ -60,7 +65,7 @@ if(size(x_unprocessed,1)>0)
 
   for ix=1:size(unq_ids,1) % loop through each ID
 
-    tmpid = unq_ids{ix,1};
+    tmpid = unq_ids{ix,1}; disp(tmpid);
 
     % get a single XR exam by ID and date
     tmpstudy = x_unprocessed(indcfind(x_unprocessed(:,3),tmpid,'regexpi'),:);

@@ -79,7 +79,7 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
 
   % generate output directory for this series
   newdir =  horzcat(dcmdir_out,'\',tmpid,'_',tmpname,'\',tmpacc2);
-  if(~exist(newdir))
+  if(~exist(newdir,'dir'))
     mkdir(newdir);
   end
 
@@ -110,7 +110,7 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
     % copy file to blinding destination
     newf = horzcat(newdir,'\',tmpacc3);
 
-    if(~exist(newf))
+    if(~exist(newf,'file'))
         copyfile(tmpf,newf,'f');
     else
         disp('Filename already exists!');
