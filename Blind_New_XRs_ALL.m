@@ -53,10 +53,12 @@ f_order = [...
 
   x_category = x_category(:,f_order);
 
-
 %% filter out processed files by SOP
 SOP_processed = [x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')); x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'))];
 x_unprocessed = x_category(~ismember(x_category(:,2),SOP_processed),:);
+
+%% filter out unstitched full limb views
+x_unprocessed(indcfind(x_unprocessed(:,6),'^Unstitched','regexpi'),:) = [];
 
 %% process and blind all new XRs
 if(size(x_unprocessed,1)>0)
@@ -110,7 +112,6 @@ if(size(x_unprocessed,1)>0)
       % blind the study
       [tmpstudy_newcohort_blinded]=Blind_NewCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
       % Upload processed files to MDB
-      disp(tmpstudy_newcohort_blinded);
       if(size(tmpstudy_newcohort_blinded,1)>0)
         UploadToMDB(mdbf,'tblDICOMQC',f_up_qc,tmpstudy_newcohort_blinded(:,[11,2:9,12]));
       end
@@ -124,7 +125,6 @@ if(size(x_unprocessed,1)>0)
       % blind the study for screening
       [tmpstudy_screening_blinded]=Blind_Screening_XR_Study(dcmdir_out_sc,tmpid,tmpstudy,accnum_sc);
       % Upload processed files to MDB
-      disp(tmpstudy_screening_blinded);
       if(size(tmpstudy_screening_blinded,1)>0)
         UploadToMDB(mdbf,'tblDICOMScreening',f_up_sc,tmpstudy_screening_blinded(:,[11,2:9,12]));
       end
