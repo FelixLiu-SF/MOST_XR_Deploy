@@ -13,8 +13,12 @@ if(~isempty(conn))
     end
 
     close(conn);
-  catch
+
+  catch upload_err
+
+    disp(upload_err.message);
     close(conn);
+
   end
-  
+
 end

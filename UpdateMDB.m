@@ -13,8 +13,12 @@ if(~isempty(conn))
     end
 
     close(conn);
-  catch
+
+  catch update_err
+
+    disp(update_err.message)
     close(conn);
+
   end
-  
+
 end

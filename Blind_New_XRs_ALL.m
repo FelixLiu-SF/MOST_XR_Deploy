@@ -8,7 +8,7 @@ warning('off','images:dicominfo:unhandledCharacterSet');
 %% initialize
 
 f_up_qc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','StudyInstanceUID','exit_code'};
-f_up_sc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','FileBarcode','StudyInstanceUID','exit_code'};
+f_up_sc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','StudyInstanceUID','exit_code'};
 
 %% set up directories
 
