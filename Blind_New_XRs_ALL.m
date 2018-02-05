@@ -5,6 +5,11 @@ warning('off','images:dicominfo:fileVRDoesNotMatchDictionary');
 warning('off','Images:initSize:adjustingMag');
 warning('off','images:dicominfo:unhandledCharacterSet');
 
+%% initialize
+
+f_up_qc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','StudyInstanceUID','exit_code'};
+f_up_sc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','FileBarcode','StudyInstanceUID','exit_code'};
+
 %% set up directories
 
 %database
@@ -42,11 +47,10 @@ f_order = [...
 
 % all processed files
 [x_qc,f_qc] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMQC');
-[x_fl,f_fl] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMFullLimb');
 [x_screening,f_screening] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMScreening');
 
 %% filter out processed files by SOP
-SOP_processed = [x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')); x_fl(:,indcfind(f_fl,'^SOPInstanceUID$','regexpi')); x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'))];
+SOP_processed = [x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')); x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'))];
 x_unprocessed = x_category(~ismember(x_category(:,2),SOP_processed),:);
 
 %% process and blind all new XRs
@@ -84,7 +88,8 @@ if(size(x_unprocessed,1)>0)
 
       % blind the study for QC
       [tmpstudy_oldcohort_blinded]=Blind_OldCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
-      % UploadToMDB here
+      % Upload processed files to MDB
+      UploadToMDB(mdbf,'tblDICOMQC',f_up_qc,tmpstudy_oldcohort_blinded);
 
     elseif(isempty(chk_oldcohort) && ~isempty(chk_newcohort))
       %% NEW cohort participant, also blind for screening
@@ -96,8 +101,9 @@ if(size(x_unprocessed,1)>0)
       UpdateMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc},{'WHERE RECORDID=1'});
 
       % blind the study
-      [tmpstudy_oldcohort_blinded]=Blind_NewCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
-      % UploadToMDB here
+      [tmpstudy_newcohort_blinded]=Blind_NewCohort_XR_Study(dcmdir_out_qc,tmpid,tmpstudy,accnum_qc);
+      % Upload processed files to MDB
+      UploadToMDB(mdbf,'tblDICOMQC',f_up_qc,tmpstudy_newcohort_blinded);
 
       % iterate the accession number counter for screening
       accnum_sc = accnum_sc+1;
@@ -106,8 +112,9 @@ if(size(x_unprocessed,1)>0)
       UpdateMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc},{'WHERE RECORDID=1'});
 
       % blind the study for screening
-      [tmpstudy_newcohort_blinded]=Blind_Screening_XR_Study(dcmdir_out_sc,tmpid,tmpstudy,accnum_sc);
-      % UploadToMDB here
+      [tmpstudy_screening_blinded]=Blind_Screening_XR_Study(dcmdir_out_sc,tmpid,tmpstudy,accnum_sc);
+      % Upload processed files to MDB
+      UploadToMDB(mdbf,'tblDICOMScreening',f_up_sc,tmpstudy_screening_blinded);
 
     end %blinding by cohort
 

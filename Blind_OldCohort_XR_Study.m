@@ -145,6 +145,6 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
 
   end %fx
 
-  tmpstudy_out = [tmpstudy_out; tmpseries];
+  tmpstudy_out = [tmpstudy_out; tmpseries(:,[11,2:10,12])];
 
 end %loop_series
