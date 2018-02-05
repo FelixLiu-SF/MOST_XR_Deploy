@@ -3,6 +3,9 @@ function [tmpstudy_out]=Blind_OldCohort_XR_Study(dcmdir_out,tmpid,tmpstudy,accnu
 %% initialize
 tmpstudy_out = {};
 
+% get patient name
+tmpname = tmpstudy{1,4};
+
 % organize series types
 loop_series = unique(tmpstudy(:,6));
 unknown_series =  indcfind(tmpstudy(:,6),'Unknown','regexpi');
@@ -38,26 +41,37 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
   switch this_se
     case 'PA'
       tmpse=1;
+      prev_str = 'Bilateral PA Fixed Flexion';
     case 'PA05'
       tmpse=3;
+      prev_str = 'Bilateral PA Fixed Flexion';
     case 'PA10'
       tmpse=1;
+      prev_str = 'Bilateral PA Fixed Flexion';
     case 'PA15'
       tmpse=2;
+      prev_str = 'Bilateral PA Fixed Flexion';
     case 'LLAT'
       tmpse=4;
+      prev_str = 'Left Lateral Knee';
     case 'RLAT'
       tmpse=5;
+      prev_str = 'Right Lateral Knee';
     case 'Full Limb'
       tmpse=6;
+      prev_str = '^Full Limb$'
     case 'Unstitched Pelvis'
       tmpse=7;
+      prev_str = '^$'
     case 'Unstitched Knee'
       tmpse=7;
+      prev_str = '^$'
     case 'Unstitched Ankle'
       tmpse=7;
+      prev_str = '^$'
     otherwise
       tmpse=7;
+      prev_str = '^$'
   end
 
   % generate series qc barcode
@@ -69,9 +83,18 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
     mkdir(newdir);
   end
 
-  %% MISSING CODE FOR GRABBING PRIOR VISIT XRAY IMAGES %%
+  %% Add XR images from previous MOST visits
   px = indcfind(KXRdata(:,2),tmpid,'regexpi');
-  
+  prev_visit = {'84M','60M','30M','15M','BL'};
+  for pvx = 1:size(prev_visit,2)
+    add_x = intersect(px,indcfind(KXRdata(:,6),horzcat(prev_visits{1,pvx},'.*',prev_str),'regexpi'));
+    if(~isempty(add_x))
+      pv_add = cell(size(add_x,1),6);
+      pv_add(:,1) = KXRdata(add_x,1);
+      pv_add(:,6) = KXRdata(add_x,6);
+      tmpseries = [tmpseries; pv_add];
+    end
+  end
 
   %% blind XR images
   for fx=1:size(tmpseries,1)

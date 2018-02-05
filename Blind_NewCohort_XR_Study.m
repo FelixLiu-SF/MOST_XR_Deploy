@@ -3,6 +3,9 @@ function [tmpstudy_out]=Blind_OldCohort_XR_Study(dcmdir_out,tmpid,tmpstudy,accnu
 %% initialize
 tmpstudy_out = {};
 
+% get patient name
+tmpname = tmpstudy{1,4};
+
 % organize series types
 loop_series = unique(tmpstudy(:,6));
 unknown_series =  indcfind(tmpstudy(:,6),'Unknown','regexpi');
