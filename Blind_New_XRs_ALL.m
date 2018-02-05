@@ -70,7 +70,7 @@ if(size(x_unprocessed,1)>0)
     % get a single XR exam by ID and date
     tmpstudy = x_unprocessed(indcfind(x_unprocessed(:,3),tmpid,'regexpi'),:);
     tmpstudydate = tmpstudy{1,5};
-    tmpstudy = x_unprocessed(indcfind(x_unprocessed(:,5),tmpstudydate,'regexpi'),:);
+    tmpstudy = tmpstudy(indcfind(tmpstudy(:,5),tmpstudydate,'regexpi'),:);
     tmpstudy = sortrows(tmpstudy,[6,5,2,1]);
 
     % get patient name

@@ -8,6 +8,9 @@ tmpname = tmpstudy{1,4};
 
 % organize series types
 loop_series = unique(tmpstudy(:,6));
+% remove unstitched full limb images
+loop_series(indcfind(loop_series(:,1),'^Unstitched','regexpi'),:) = [];
+% collect unknown image types 
 unknown_series =  indcfind(tmpstudy(:,6),'Unknown','regexpi');
 empty_series =    indcfind(tmpstudy(:,6),'','empty');
 
@@ -54,11 +57,11 @@ for jx_se = 1:size(loop_series,1) %loop through each XR view type in exam
     case 'Full Limb'
       tmpse=6;
     case 'Unstitched Pelvis'
-      tmpse=7;
+      tmpse=62;
     case 'Unstitched Knee'
-      tmpse=7;
+      tmpse=63;
     case 'Unstitched Ankle'
-      tmpse=7;
+      tmpse=64;
     otherwise
       tmpse=7;
   end
