@@ -28,6 +28,18 @@ accnum_sc = x_acc{1,indcfind(f_acc,'^Screening$','regexpi')};
 % all files and categories
 [x_category,f_category] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesCategory');
 
+% align columns
+f_order = [...
+  indcfind(f_category,'^filename$','regexpi'),...
+  indcfind(f_category,'^SOPInstanceUID$','regexpi'),...
+  indcfind(f_category,'^PatientID$','regexpi'),...
+  indcfind(f_category,'^PatientName$','regexpi'),...
+  indcfind(f_category,'^StudyDate$','regexpi'),...
+  indcfind(f_category,'^View$','regexpi'),...
+  ];
+
+  x_category = x_category(:,f_order);
+
 % all processed files
 [x_qc,f_qc] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMQC');
 [x_fl,f_fl] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMFullLimb');
@@ -35,7 +47,7 @@ accnum_sc = x_acc{1,indcfind(f_acc,'^Screening$','regexpi')};
 
 %% filter out processed files by SOP
 SOP_processed = [x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')); x_fl(:,indcfind(f_fl,'^SOPInstanceUID$','regexpi')); x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'))];
-x_unprocessed = x_category(~ismember(x_category(:,indcfind(f_category,'^SOPInstanceUID$','regexpi')),SOP_processed),:);
+x_unprocessed = x_category(~ismember(x_category(:,2),SOP_processed),:);
 
 %% process and blind all new XRs
 if(size(x_unprocessed,1)>0)
@@ -48,25 +60,25 @@ if(size(x_unprocessed,1)>0)
 
     % get a single XR exam by ID and date
     tmpstudy = x_unprocessed(indcfind(x_unprocessed(:,3),tmpid,'regexpi'),:);
-    tmpstudydate = tmpstudy{1,4};
-    tmpstudy = x_unprocessed(indcfind(x_unprocessed(:,4),tmpstudydate,'regexpi'),:);
-    tmpstudy = sortrows(tmpstudy,[6,4,2,1]);
+    tmpstudydate = tmpstudy{1,5};
+    tmpstudy = x_unprocessed(indcfind(x_unprocessed(:,5),tmpstudydate,'regexpi'),:);
+    tmpstudy = sortrows(tmpstudy,[6,5,2,1]);
 
     % get patient name
-    tmpname = tmpstudy{1,5};
+    tmpname = tmpstudy{1,4};
 
     %% check cohort by ID
     chk_oldcohort = regexpi(tmpid,'(MB0[0-2][0-9]{3}|MI5[0-2][0-9]{3})');
     chk_newcohort = regexpi(tmpid,'(MB0[3-9][0-9]{3}|MI5[3-9][0-9]{3})');
 
-    
+
     %% switch blinding by cohort
     if(~isempty(chk_oldcohort) && isempty(chk_newcohort))
       %% OLD cohort participant, do not screen
 
       % iterate the accession number counter for QC
       accnum_qc = accnum_qc+1;
-      
+
       % save accession number counters
       UpdateMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc},{'WHERE RECORDID=1'});
 
@@ -79,7 +91,7 @@ if(size(x_unprocessed,1)>0)
 
       % iterate the accession number counter for QC
       accnum_qc = accnum_qc+1;
-      
+
       % save accession number counters
       UpdateMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc},{'WHERE RECORDID=1'});
 
@@ -89,7 +101,7 @@ if(size(x_unprocessed,1)>0)
 
       % iterate the accession number counter for screening
       accnum_sc = accnum_sc+1;
-      
+
       % save accession number counters
       UpdateMDB(mdbf,'tblAccNum',{'QC','Screening'},{accnum_qc, accnum_sc},{'WHERE RECORDID=1'});
 
@@ -100,7 +112,7 @@ if(size(x_unprocessed,1)>0)
     end %blinding by cohort
 
   end %ix
-  
+
   %% save .mat file
   save(savef);
 
