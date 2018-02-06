@@ -2,6 +2,8 @@ function [tmpstudy_out]=Blind_OldCohort_XR_Study(dcmdir_out,tmpid,tmpstudy,accnu
 
 %% initialize
 tmpstudy_out = {};
+dpvr_file = 'KXRdata.mat';
+load(dpvr_file);
 
 % get patient name
 tmpname = tmpstudy{1,4};
