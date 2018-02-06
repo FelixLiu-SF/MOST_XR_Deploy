@@ -30,9 +30,12 @@ mdbf_template = list_template{end,1};
 
 % set up directories
 output_dir = 'E:\most-dicom\XR_QC\Sent\Screening';
+final_destination = '';
 
 batch_dir = horzcat(output_dir,'\Batches\Batch_',dvd_date);
 mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
+final_dir = horzcat(final_destination,'\DICOM\',dvd_date);
+final_mdbf = horzcat(final_destination,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
 
 if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
@@ -87,11 +90,11 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   % query for incidental findings review
   [x_IF,f_IF] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblSendIF WHERE send_flag=0');
   pause(1);
-  [x_IF] = AlignMSColumns(x_IF,f_IF,f_send);
+  [x_IF_aligned] = AlignMSColumns(x_IF,f_IF,f_send);
 
   % collect all files to send
   x_up = {};
-  x_up = [x_up; x_send; x_adj; x_resend; x_IF];
+  x_up = [x_up; x_send; x_adj; x_resend; x_IF_aligned];
 
   if(size(x_up,1)>0) % continue if there are any IDs to send
 
@@ -101,7 +104,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     % create scoresheet file
     copyfile(mdbf_template,mdbf);
 
-    % copy files to batching dir
+    % column indices 
     f_filename = indcfind(f_send,'^filename$','regexpi');
     f_SOPInstanceUID = indcfind(f_send,'^SOPInstanceUID$','regexpi');
     f_PatientID = indcfind(f_send,'^PatientID$','regexpi');
@@ -112,6 +115,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     f_SeriesBarcode = indcfind(f_send,'^SeriesBarcode$','regexpi');
     f_FileBarcode = indcfind(f_send,'^FileBarcode$','regexpi');
 
+    % copy files to batching dir
     for fx=1:size(x_up,1)
 
       tmpf = x_up{fx,f_filename};
@@ -132,8 +136,52 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     end
 
     % insert into scoresheet
+    conn = DeployMSAccessConn(mdbf);
+
+    % get IDs for sending as blank scoresheets
+    prefill_up = [x_send; x_resend];
+    u_id = unique(prefill_up(:,f_PatientID));
+
+    % loop through each ID
+    for px=1:size(u_id,1)
+      tmpid = u_id{px,1};
+
+      % collect images with matching ID
+      tmpstudy = x_up(indcfind(x_up(:,f_PatientID),tmpid,'regexpi'),:);
+
+      % collect metadata
+      tmpname = tmpstudy{1,f_PatientName};
+      tmpstudydate = tmpstudy{1,f_StudyDate};
+      tmpstudybc = tmpstudy{1,f_StudyBarcode};
+
+      tmpnum = size(tmpstudy,1);
+
+      % arrange data to insert
+      tmp_up = {...
+          tmpid;...
+          tmpname;...
+          dvd_date;...
+          side;...
+          knee;...
+          tmpstudydate;...
+          tmpstudybc;...
+          tmpnum;...
+          };
+
+      %upload the data
+      fastinsert(conn,'tblScores',f_up,tmp_up'); pause(1);
+      fastinsert(conn,'tblOrigScores',f_up,tmp_up'); pause(1);
+
+    end
+
+    close(conn);
+    pause(1);
+
+    %% NEED CODE TO ADD ADJ AND IF SCORESHEET ENTRIES %%
 
     % copy to Box.com Sync folder
+    copyfile(batch_dir,final_dir);
+    copyfile(mdbf,final_mdbf);
 
   end
 end
