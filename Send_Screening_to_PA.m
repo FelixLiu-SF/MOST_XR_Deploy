@@ -189,5 +189,55 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     copyfile(batch_dir,final_dir);
     copyfile(mdbf,final_mdbf);
 
-  end
-end
+    % Update send_flags in database 
+
+    if(size(x_send,1)>0)
+      % update tblDICOMScreening send_flags
+      tmpwhere = {};
+      tmpwhere1 = cell(size(x_send,1));
+      tmpwhere1(:) = {'WHERE SOPInstanceUID='''};
+      tmpwhere2 = cell(size(x_send,1));
+      tmpwhere2(:) = {''''};
+      tmpwhere = cellfun(@horzcat,tmpwhere1,x_send(:,f_SOPInstanceUID),tmpwhere2,'UniformOutput',0);
+
+      UpdateMDB(mdbf_qc,'tblDICOMScreening',{'send_flag'},{1},tmpwhere);
+    end
+
+    if(size(x_adj,1)>0)
+      % update tblDICOMScreening send_flags
+      tmpwhere = {};
+      tmpwhere1 = cell(size(x_adj,1));
+      tmpwhere1(:) = {'WHERE SOPInstanceUID='''};
+      tmpwhere2 = cell(size(x_adj,1));
+      tmpwhere2(:) = {''''};
+      tmpwhere = cellfun(@horzcat,tmpwhere1,x_adj(:,f_SOPInstanceUID),tmpwhere2,'UniformOutput',0);
+
+      UpdateMDB(mdbf_qc,'tblSendAdj',{'send_flag'},{1},tmpwhere);
+    end
+
+    if(size(x_resend,1)>0)
+      % update tblDICOMScreening send_flags
+      tmpwhere = {};
+      tmpwhere1 = cell(size(x_resend,1));
+      tmpwhere1(:) = {'WHERE SOPInstanceUID='''};
+      tmpwhere2 = cell(size(x_resend,1));
+      tmpwhere2(:) = {''''};
+      tmpwhere = cellfun(@horzcat,tmpwhere1,x_resend(:,f_SOPInstanceUID),tmpwhere2,'UniformOutput',0);
+
+      UpdateMDB(mdbf_qc,'tblResend',{'send_flag'},{1},tmpwhere);
+    end
+
+    if(size(x_IF_aligned,1)>0)
+      % update tblDICOMScreening send_flags
+      tmpwhere = {};
+      tmpwhere1 = cell(size(x_IF_aligned,1));
+      tmpwhere1(:) = {'WHERE SOPInstanceUID='''};
+      tmpwhere2 = cell(size(x_IF_aligned,1));
+      tmpwhere2(:) = {''''};
+      tmpwhere = cellfun(@horzcat,tmpwhere1,x_IF_aligned(:,f_SOPInstanceUID),tmpwhere2,'UniformOutput',0);
+
+      UpdateMDB(mdbf_qc,'tblSendIF',{'send_flag'},{1},tmpwhere);
+    end
+
+  end %if any images to send exist
+end %if batch dir does not exist yet
