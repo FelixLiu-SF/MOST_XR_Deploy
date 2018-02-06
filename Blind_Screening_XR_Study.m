@@ -129,6 +129,9 @@ if(size(loop_series,1)>0)
       [exit_code]=MOST_XR_Anonymize(newf,tagcell);
       tmpseries{fx,12} = exit_code;
 
+      % Add a flag to indicate sending
+      tmpseries{fx,13} = 0;
+
     end %fx
 
     dellist = filetroll(newdir,'*','.bak',0,1);
