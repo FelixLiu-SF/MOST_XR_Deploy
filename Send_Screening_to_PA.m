@@ -77,6 +77,12 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     return;
   end
 
+  % limit how many new XRs to send
+  lim_num = 20;
+  if(size(x_send,1)>lim_num)
+    x_send = x_send(1:lim_num,:);
+  end
+
   % query for adjudication review
   [x_adj,f_adj] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblSendAdj WHERE send_flag=0');
   pause(1);
@@ -104,7 +110,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     % create scoresheet file
     copyfile(mdbf_template,mdbf);
 
-    % column indices 
+    % column indices
     f_filename = indcfind(f_send,'^filename$','regexpi');
     f_SOPInstanceUID = indcfind(f_send,'^SOPInstanceUID$','regexpi');
     f_PatientID = indcfind(f_send,'^PatientID$','regexpi');
