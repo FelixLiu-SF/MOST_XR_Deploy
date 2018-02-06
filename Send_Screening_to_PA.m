@@ -34,11 +34,7 @@ output_dir = 'E:\most-dicom\XR_QC\Sent\Screening';
 batch_dir = horzcat(output_dir,'\Batches\Batch_',dvd_date);
 mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
 
-if(~exist(batch_dir,'dir'))
-
-  % create batching files
-  mkdir(batch_dir);
-  copyfile(mdbf_template,mdbf);
+if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
   % query for blinded images
   [x_screening,f_screening] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening');
@@ -68,12 +64,60 @@ if(~exist(batch_dir,'dir'))
 
   % add in IDs for review, by ID
 
+  %% filter out exit_code errors %%
+  del_ix = [];
+  for fx=1:size(x_up,1)
+    tmp_exitcode = x_up{fx,indcfind(f_screening,'exit_code','regexpi')};
+    if(tmp_exitcode>0)
+      del_ix = [del_ix; fx];
+    end
+  end
+  if(size(del_ix,1)>0)
+    x_up(del_ix,:) = [];
+  end
+  
 
-  % copy files
+  if(size(x_up,1)>0) % continue if there are any IDs to send
 
-  % create new mdb scoresheet
+    % create batching directory
+    mkdir(batch_dir);
 
-  % copy to Box.com Sync folder
+    % create scoresheet file
+    copyfile(mdbf_template,mdbf);
 
+    % copy files to batching dir
+    f_filename = indcfind(f_screening,'^filename$','regexpi');
+    f_SOPInstanceUID = indcfind(f_screening,'^SOPInstanceUID$','regexpi');
+    f_PatientID = indcfind(f_screening,'^PatientID$','regexpi');
+    f_PatientName = indcfind(f_screening,'^PatientName$','regexpi');
+    f_StudyDate = indcfind(f_screening,'^StudyDate$','regexpi');
+    f_View = indcfind(f_screening,'^View$','regexpi');
+    f_StudyBarcode = indcfind(f_screening,'^StudyBarcode$','regexpi');
+    f_SeriesBarcode = indcfind(f_screening,'^SeriesBarcode$','regexpi');
+    f_FileBarcode = indcfind(f_screening,'^FileBarcode$','regexpi');
 
+    for fx=1:size(x_up,1)
+
+      tmpf = x_up{fx,f_filename};
+      tmpid = x_up{fx,f_PatientID};
+      tmpname = x_up{fx,f_PatientName};
+      tmpstudybc = x_up{fx,f_StudyBarcode};
+      tmpfilebc = x_up{fx,f_FileBarcode};
+
+      newdir = horzcat(batch_dir,'\',tmpid,'_',tmpname,'\',tmpstudybc);
+      newf = horzcat(newdir,'\',tmpfilebc);
+
+      if(~exist(newdir,'dir'))
+        mkdir(newdir);
+      end
+
+      copyfile(tmpf,newf);
+
+    end
+
+    % insert into scoresheet
+
+    % copy to Box.com Sync folder
+
+  end
 end
