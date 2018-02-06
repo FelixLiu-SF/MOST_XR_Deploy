@@ -36,38 +36,31 @@ mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
 
 if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
-  % query for blinded images
-  [x_screening,f_screening] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening');
+  % query for blinded images that have not been sent
+  [x_send,f_send] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening WHERE send_flag=0');
   pause(1);
 
-  % query for images previously sent
-  [x_sent,f_sent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblSentScreening');
+  % stop if no images to send
+  if(size(x_send,2)<2)
+    return;
+  end
+
+  % filter out IDs that have been previously sent
+  [x_sent,f_sent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening WHERE send_flag BETWEEN 1 and 2'); % flag 1 for PA, flag 2 for DF
   pause(1);
+  unique_sent_IDs = unique(x_send(:,indcfind(f_sent,'^PatientID$','regexpi')));
 
-  % query for new incidental findings//resend
-  [x_resend,f_resend] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblResend');
-  pause(1);
-  [x_resent,f_resent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblResent');
-  pause(1);
+  x_send = x_send(~ismember(x_send(:,indcfind(f_send,'^PatientID$','regexpi')),unique_sent_IDs);
 
-  %% query for review by DF %%
+  % stop if no images to send
+  if(size(x_send,1)<1)
+    return;
+  end
 
-  % filter for XR exams that haven't been sent yet, by ID
-  x_up = {};
-  x_up = x_screening(~ismember(x_screening(:,indcfind(f_screening,'^PatientID$','regexpi')),x_sent(:,indcfind(f_sent,'^PatientID$','regexpi'))),:);
-
-  % add in files for resending, by filename
-  to_add = {};
-  to_add = x_resend(~ismember(x_resend(:,indcfind(f_resend,'^filename$','regexpi')),x_resent(:,indcfind(f_resent,'^filename$','regexpi'))),:);
-
-  x_up = [x_up; to_add];
-
-  % add in IDs for review, by ID
-
-  %% filter out exit_code errors %%
+  % filter out exit_code errors %
   del_ix = [];
-  for fx=1:size(x_up,1)
-    tmp_exitcode = x_up{fx,indcfind(f_screening,'exit_code','regexpi')};
+  for fx=1:size(x_send,1)
+    tmp_exitcode = x_send{fx,indcfind(f_send,'exit_code','regexpi')};
     if(tmp_exitcode>0)
       del_ix = [del_ix; fx];
     end
@@ -75,7 +68,30 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   if(size(del_ix,1)>0)
     x_up(del_ix,:) = [];
   end
-  
+
+  % stop if no images to send
+  if(size(x_send,1)<1)
+    return;
+  end
+
+  % query for adjudication review
+  [x_adj,f_adj] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblSendAdj WHERE send_flag=0');
+  pause(1);
+  [x_adj] = AlignMSColumns(x_adj,f_adj,f_send);
+
+  % query for resend
+  [x_resend,f_resend] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblResend WHERE send_flag=0');
+  pause(1);
+  [x_resend] = AlignMSColumns(x_resend,f_resend,f_send);
+
+  % query for incidental findings review
+  [x_IF,f_IF] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblSendIF WHERE send_flag=0');
+  pause(1);
+  [x_IF] = AlignMSColumns(x_IF,f_IF,f_send);
+
+  % collect all files to send
+  x_up = {};
+  x_up = [x_up; x_send; x_adj; x_resend; x_IF];
 
   if(size(x_up,1)>0) % continue if there are any IDs to send
 
@@ -86,15 +102,15 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     copyfile(mdbf_template,mdbf);
 
     % copy files to batching dir
-    f_filename = indcfind(f_screening,'^filename$','regexpi');
-    f_SOPInstanceUID = indcfind(f_screening,'^SOPInstanceUID$','regexpi');
-    f_PatientID = indcfind(f_screening,'^PatientID$','regexpi');
-    f_PatientName = indcfind(f_screening,'^PatientName$','regexpi');
-    f_StudyDate = indcfind(f_screening,'^StudyDate$','regexpi');
-    f_View = indcfind(f_screening,'^View$','regexpi');
-    f_StudyBarcode = indcfind(f_screening,'^StudyBarcode$','regexpi');
-    f_SeriesBarcode = indcfind(f_screening,'^SeriesBarcode$','regexpi');
-    f_FileBarcode = indcfind(f_screening,'^FileBarcode$','regexpi');
+    f_filename = indcfind(f_send,'^filename$','regexpi');
+    f_SOPInstanceUID = indcfind(f_send,'^SOPInstanceUID$','regexpi');
+    f_PatientID = indcfind(f_send,'^PatientID$','regexpi');
+    f_PatientName = indcfind(f_send,'^PatientName$','regexpi');
+    f_StudyDate = indcfind(f_send,'^StudyDate$','regexpi');
+    f_View = indcfind(f_send,'^View$','regexpi');
+    f_StudyBarcode = indcfind(f_send,'^StudyBarcode$','regexpi');
+    f_SeriesBarcode = indcfind(f_send,'^SeriesBarcode$','regexpi');
+    f_FileBarcode = indcfind(f_send,'^FileBarcode$','regexpi');
 
     for fx=1:size(x_up,1)
 
