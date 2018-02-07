@@ -147,7 +147,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     % get IDs for sending as blank scoresheets
     prefill_up = [x_send; x_resend];
 
-    % Insert new blank records into scoresheet 
+    % Insert new blank records into scoresheet
     InsertScoresheet_NewScreening(mdbf,prefill_up,f_send);
 
     %% NEED CODE TO ADD ADJ AND IF SCORESHEET ENTRIES %%
@@ -166,7 +166,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
     if(size(x_send,1)>0)
       % update tblDICOMScreening send_flags
-      tmpwhere = {};
+      flag_cell = {};
       tmpwhere1 = cell(size(x_send,1));
       tmpwhere1(:) = {'WHERE SOPInstanceUID='''};
       tmpwhere2 = cell(size(x_send,1));
@@ -190,14 +190,13 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
     if(size(x_resend,1)>0)
       % update tblDICOMScreening send_flags
-      tmpwhere = {};
-      tmpwhere1 = cell(size(x_resend,1));
-      tmpwhere1(:) = {'WHERE SOPInstanceUID='''};
-      tmpwhere2 = cell(size(x_resend,1));
-      tmpwhere2(:) = {''''};
-      tmpwhere = cellfun(@horzcat,tmpwhere1,x_resend(:,f_SOPInstanceUID),tmpwhere2,'UniformOutput',0);
 
-      UpdateMDB(mdbf_qc,'tblResend',{'send_flag'},{1},tmpwhere);
+      flag_cell = cell(size(x_resend,1));
+      flag_cell(:) = {1};
+
+      where_cell = x_resend(:,f_SOPInstanceUID);
+
+      UpdateMDB_WhereIs(mdbf_qc,'tblResend',{'send_flag'},flag_cell,where_cell,1);
     end
 
     if(size(x_IF_aligned,1)>0)
