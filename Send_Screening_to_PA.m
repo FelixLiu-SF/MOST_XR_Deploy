@@ -146,50 +146,23 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
     % get IDs for sending as blank scoresheets
     prefill_up = [x_send; x_resend];
-    u_id = unique(prefill_up(:,f_PatientID));
 
-    % loop through each ID
-    for px=1:size(u_id,1)
-      tmpid = u_id{px,1};
-
-      % collect images with matching ID
-      tmpstudy = x_up(indcfind(x_up(:,f_PatientID),tmpid,'regexpi'),:);
-
-      % collect metadata
-      tmpname = tmpstudy{1,f_PatientName};
-      tmpstudydate = tmpstudy{1,f_StudyDate};
-      tmpstudybc = tmpstudy{1,f_StudyBarcode};
-
-      tmpnum = size(tmpstudy,1);
-
-      % arrange data to insert
-      tmp_up = {...
-          tmpid;...
-          tmpname;...
-          dvd_date;...
-          side;...
-          knee;...
-          tmpstudydate;...
-          tmpstudybc;...
-          tmpnum;...
-          };
-
-      %upload the data
-      fastinsert(conn,'tblScores',f_up,tmp_up'); pause(1);
-      fastinsert(conn,'tblOrigScores',f_up,tmp_up'); pause(1);
-
-    end
-
-    close(conn);
-    pause(1);
+    % Insert new blank records into scoresheet 
+    InsertScoresheet_NewScreening(mdbf,prefill_up,f_send);
 
     %% NEED CODE TO ADD ADJ AND IF SCORESHEET ENTRIES %%
+
+    % get IDs for sending as adj
+    prefill_up = x_adj;
+    u_id = unique(prefill_up(:,f_PatientID));
+
+
 
     % copy to Box.com Sync folder
     copyfile(batch_dir,final_dir);
     copyfile(mdbf,final_mdbf);
 
-    % Update send_flags in database 
+    % Update send_flags in database
 
     if(size(x_send,1)>0)
       % update tblDICOMScreening send_flags
