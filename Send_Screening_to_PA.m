@@ -166,30 +166,27 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
     if(size(x_send,1)>0)
       % update tblDICOMScreening send_flags
-      flag_cell = {};
-      tmpwhere1 = cell(size(x_send,1));
-      tmpwhere1(:) = {'WHERE SOPInstanceUID='''};
-      tmpwhere2 = cell(size(x_send,1));
-      tmpwhere2(:) = {''''};
-      tmpwhere = cellfun(@horzcat,tmpwhere1,x_send(:,f_SOPInstanceUID),tmpwhere2,'UniformOutput',0);
+      flag_cell = cell(size(x_send,1));
+      flag_cell(:) = {1};
 
-      UpdateMDB(mdbf_qc,'tblDICOMScreening',{'send_flag'},{1},tmpwhere);
+      where_cell = x_send(:,f_SOPInstanceUID);
+
+      UpdateMDB_WhereIs(mdbf_qc,'tblDICOMScreening',{'send_flag'},flag_cell,where_cell,1);
     end
 
     if(size(x_adj,1)>0)
-      % update tblDICOMScreening send_flags
-      tmpwhere = {};
-      tmpwhere1 = cell(size(x_adj,1));
-      tmpwhere1(:) = {'WHERE SOPInstanceUID='''};
-      tmpwhere2 = cell(size(x_adj,1));
-      tmpwhere2(:) = {''''};
-      tmpwhere = cellfun(@horzcat,tmpwhere1,x_adj(:,f_SOPInstanceUID),tmpwhere2,'UniformOutput',0);
+      % update tblSendAdj send_flags
 
-      UpdateMDB(mdbf_qc,'tblSendAdj',{'send_flag'},{1},tmpwhere);
+      flag_cell = cell(size(x_adj,1));
+      flag_cell(:) = {1};
+
+      where_cell = x_adj(:,f_SOPInstanceUID);
+
+      UpdateMDB_WhereIs(mdbf_qc,'tblSendAdj',{'send_flag'},flag_cell,where_cell,1);
     end
 
     if(size(x_resend,1)>0)
-      % update tblDICOMScreening send_flags
+      % update tblResend send_flags
 
       flag_cell = cell(size(x_resend,1));
       flag_cell(:) = {1};
@@ -200,15 +197,14 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     end
 
     if(size(x_IF_aligned,1)>0)
-      % update tblDICOMScreening send_flags
-      tmpwhere = {};
-      tmpwhere1 = cell(size(x_IF_aligned,1));
-      tmpwhere1(:) = {'WHERE SOPInstanceUID='''};
-      tmpwhere2 = cell(size(x_IF_aligned,1));
-      tmpwhere2(:) = {''''};
-      tmpwhere = cellfun(@horzcat,tmpwhere1,x_IF_aligned(:,f_SOPInstanceUID),tmpwhere2,'UniformOutput',0);
+      % update tblSendIF send_flags
 
-      UpdateMDB(mdbf_qc,'tblSendIF',{'send_flag'},{1},tmpwhere);
+      flag_cell = cell(size(x_IF_aligned,1));
+      flag_cell(:) = {1};
+
+      where_cell = x_IF_aligned(:,f_SOPInstanceUID);
+
+      UpdateMDB_WhereIs(mdbf_qc,'tblSendIF',{'send_flag'},flag_cell,where_cell,1);
     end
 
   end %if any images to send exist
