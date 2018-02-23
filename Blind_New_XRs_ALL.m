@@ -54,7 +54,7 @@ f_order = [...
   x_category = x_category(:,f_order);
 
 %% filter out processed files by SOP
-SOP_processed = [x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')); x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'))];
+SOP_processed = intersect(x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')),x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi')));
 x_unprocessed = x_category(~ismember(x_category(:,2),SOP_processed),:);
 
 %% filter out unstitched full limb views
