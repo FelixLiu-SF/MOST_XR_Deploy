@@ -24,6 +24,8 @@ dcmdir_out_sc = horzcat(dcmdir_out,'\Screening');
 savef = horzcat(dcmdir_out,'\MOST_XR_BLIND_',datestr(now,'yyyymmddHHMMSS'),'.mat');
 
 %% grab data from database
+disp('');
+disp(horzcat('Reading from database: ',mdbf));
 
 % accession numbers
 [x_acc,f_acc] = DeployMDBquery(mdbf,'SELECT * FROM tblAccNum');
@@ -54,6 +56,8 @@ f_order = [...
   x_category = x_category(:,f_order);
 
 %% filter out processed files by SOP
+disp('');
+disp('Filter our previously blinded files');
 SOP_processed = intersect(x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')),x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi')));
 x_unprocessed = x_category(~ismember(x_category(:,2),SOP_processed),:);
 
@@ -61,6 +65,8 @@ x_unprocessed = x_category(~ismember(x_category(:,2),SOP_processed),:);
 x_unprocessed(indcfind(x_unprocessed(:,6),'^Unstitched','regexpi'),:) = [];
 
 %% process and blind all new XRs
+disp('');
+disp('Blind new X-ray images');
 if(size(x_unprocessed,1)>0)
 
   unq_ids = unique(x_unprocessed(:,3));
@@ -85,6 +91,7 @@ if(size(x_unprocessed,1)>0)
 
     %% switch blinding by cohort
     if(~isempty(chk_oldcohort) && isempty(chk_newcohort))
+        
       %% OLD cohort participant, do not screen
 
       % iterate the accession number counter for QC
@@ -101,6 +108,7 @@ if(size(x_unprocessed,1)>0)
       end
 
     elseif(isempty(chk_oldcohort) && ~isempty(chk_newcohort))
+        
       %% NEW cohort participant, also blind for screening
 
       % iterate the accession number counter for QC
