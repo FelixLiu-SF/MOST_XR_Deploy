@@ -7,8 +7,8 @@ warning('off','images:dicominfo:unhandledCharacterSet');
 
 %% initialize
 
-f_up_qc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','exit_code','send_flag'};
-f_up_sc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','exit_code','send_flag'};
+f_up_qc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','Exit_code','Send_flag'};
+f_up_sc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','View','StudyBarcode','SeriesBarcode','FileBarcode','Exit_code','Send_flag'};
 
 %% set up directories
 
@@ -79,7 +79,7 @@ if(size(x_unprocessed,1)>0)
 
   for ix=1:size(unq_ids,1) % loop through each ID
 
-    tmpid = unq_ids{ix,1}; disp(tmpid);
+    tmpid = unq_ids{ix,1};
     
     disp(ix);
     disp(tmpid);
