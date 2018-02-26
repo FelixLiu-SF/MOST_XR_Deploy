@@ -3,7 +3,7 @@ function [final_dicom_category]=Get_New_XRs_All()
 % this should scan for all new XR files, and categorize them by view and by exam type
 
 %% initialize
-disp('');
+disp(' ');
 disp('Initializing Neural Network scan...');
 final_dicom_category = {};
 
@@ -25,13 +25,13 @@ savef = horzcat(output_dir,'\XR_files_',dtstr,'.mat');
 
 
 %% query database for data
-disp('');
+disp(' ');
 disp(horzcat('Reading from database: ',mdbf));
 [x_exclude,f_exclude] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesExcluded');
 [x_category,f_category] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesCategory');
 
 %% scan directories
-disp('');
+disp(' ');
 disp(horzcat('Reading DICOMs from: ',incoming_dir_uab));
 uab_filelist = filetroll(incoming_dir_uab,'*','.dcm',0,0);
 disp(horzcat('Reading DICOMs from: ',incoming_dir_ui));
@@ -40,7 +40,7 @@ ui_filelist = filetroll(incoming_dir_ui,'*','.dcm',0,0);
 dicom_xr_list = [uab_filelist; ui_filelist];
 
 %% filter out files by filename/filetype
-disp('');
+disp(' ');
 disp('Filtering out previously scanned files.');
 filter_xr_list = dicom_xr_list;
 
@@ -58,9 +58,11 @@ filter_xr_list = filter_xr_list(~ismember(filter_xr_list(:,1),files_already_cate
 % filter for only DICOM file formats
 filter_xr_list = filter_xr_list(cellfun(@isdicom,filter_xr_list(:,1)),:);
 
+disp(' ');
+disp(horzcat('# of new files found: ',num2str(size(filter_xr_list,1))));
 
 %% get dicom metadata
-disp('');
+disp(' ');
 disp('Reading DICOM metadata');
 dicom_unblinded = {};
 for ix=1:size(filter_xr_list,1)
@@ -100,7 +102,7 @@ final_dicom_unblinded = dicom_unblinded(mostid_x,:);
 final_dicom_unblinded = sortrows(final_dicom_unblinded,[4,-3]); %sort by studydate
 
 %% analyze for content
-disp('');
+disp(' ');
 disp('Analyzing X-ray image types using Neural Networks');
 if(size(final_dicom_unblinded,1)>0)
 
@@ -108,6 +110,8 @@ if(size(final_dicom_unblinded,1)>0)
   final_dicom_category = final_dicom_unblinded;
 
   for ix=1:size(final_dicom_category,1)
+      
+    disp(ix);
 
     tmpf =  final_dicom_category{ix,1};
     tmpid = final_dicom_category{ix,3};
