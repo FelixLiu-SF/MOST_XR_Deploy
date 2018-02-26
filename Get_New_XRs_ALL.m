@@ -111,12 +111,13 @@ if(size(final_dicom_unblinded,1)>0)
 
   for ix=1:size(final_dicom_category,1)
       
-    disp(ix);
-
     tmpf =  final_dicom_category{ix,1};
     tmpid = final_dicom_category{ix,3};
 
     view_output = '';
+    
+    disp(ix);
+    disp(tmpf);
 
     try
       % preprocess image for NN

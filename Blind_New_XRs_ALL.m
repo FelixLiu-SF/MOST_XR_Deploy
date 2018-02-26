@@ -73,10 +73,16 @@ disp('Blind new X-ray images');
 if(size(x_unprocessed,1)>0)
 
   unq_ids = unique(x_unprocessed(:,3));
+  
+  disp(' ');
+  disp(horzcat('# of IDs to blind: ',num2str(size(unq_ids,1))));
 
   for ix=1:size(unq_ids,1) % loop through each ID
 
     tmpid = unq_ids{ix,1}; disp(tmpid);
+    
+    disp(ix);
+    disp(tmpid);
 
     % get a single XR exam by ID and date
     tmpstudy = x_unprocessed(indcfind(x_unprocessed(:,3),tmpid,'regexpi'),:);
