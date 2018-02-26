@@ -58,9 +58,6 @@ filter_xr_list = filter_xr_list(~ismember(filter_xr_list(:,1),files_already_cate
 % filter for only DICOM file formats
 filter_xr_list = filter_xr_list(cellfun(@isdicom,filter_xr_list(:,1)),:);
 
-disp(' ');
-disp(horzcat('# of new files found: ',num2str(size(filter_xr_list,1))));
-
 %% get dicom metadata
 disp(' ');
 disp('Reading DICOM metadata');
@@ -100,6 +97,9 @@ mostid_x = indcfind(dicom_unblinded(:,3),'(MB|MI)[0-9]{5}','regexpi');
 
 final_dicom_unblinded = dicom_unblinded(mostid_x,:);
 final_dicom_unblinded = sortrows(final_dicom_unblinded,[4,-3]); %sort by studydate
+
+disp(' ');
+disp(horzcat('# of new files found: ',num2str(size(final_dicom_unblinded,1))));
 
 %% analyze for content
 disp(' ');
