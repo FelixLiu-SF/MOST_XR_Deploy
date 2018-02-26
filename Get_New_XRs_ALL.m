@@ -8,7 +8,7 @@ final_dicom_category = {};
 %% set up directories
 
 %database
-mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb';
+mdbf = '\\fu-hsing\most\Imaging\144-month\MOST_XR_144M_Master.accdb';
 
 %input dir
 incoming_dir_uab = 'E:\most\MOST-Renewal-II\Clinics\UAB\Xray';
@@ -121,7 +121,11 @@ if(size(final_dicom_unblinded,1)>0)
   %% save the results
 
   % save mat file
-  save(savef,'final_dicom_category','final_dicom_unblinded')
+  try
+      save(savef,'final_dicom_category','final_dicom_unblinded')
+  catch save_err
+      disp(save_err.message);
+  end
 
   % upload to database
   UploadToMDB(mdbf,'tblFilesCategory',{'filename','SOPInstanceUID','PatientID','StudyDate','PatientName','View'},final_dicom_category);
