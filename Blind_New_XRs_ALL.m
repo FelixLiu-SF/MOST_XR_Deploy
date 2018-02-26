@@ -13,7 +13,7 @@ f_up_sc = {'filename','SOPInstanceUID','PatientID','PatientName','StudyDate','Vi
 %% set up directories
 
 %database
-mdbf = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb';
+mdbf = '\\fu-hsing\most\Imaging\144-month\MOST_XR_144M_Master.accdb';
 
 %output dir
 dcmdir_out = 'E:\most-dicom\XR_QC\144m';
