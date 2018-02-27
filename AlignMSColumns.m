@@ -10,4 +10,6 @@ if(size(f_in,1)>1 && size(x_in,2)>1)
   end
 
   x_out = x_in(:,jx);
+else
+  x_out = x_in;
 end

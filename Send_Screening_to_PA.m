@@ -4,33 +4,19 @@ function Send_Screening_to_PA()
 %% initialize
 
 % parameters
-side = 3;
-knee = 'B';
 dvd_date = datestr(now,'yyyymmdd');
 
-% table columns for upload
-f_up = {...
-    'READINGID';...
-    'READINGACRO';...
-    'DVD';...
-    'SIDE';...
-    'KNEE';...
-    'V1BLINDDATE';...
-    'V1TFBARCDBU';...
-    'V1NUMXR';...
-    };
-
 % mdbf
-mdbf_qc = 'S:\FelixTemp\XR\MOST_XR_144M_Master.accdb';
+mdbf_qc = '\\fu-hsing\most\Imaging\144-month\MOST_XR_144M_Master.accdb';
 
 % get scoresheet template
-template_dir = 'S:\FelixTemp\XR\ScreeningPA_Templates';
+template_dir = 'S:\FelixTemp\XR\Scoresheet_Templates\ScreeningPA_Templates';
 [~,~,list_template]=foldertroll(template_dir,'.mdb');
 mdbf_template = list_template{end,1};
 
 % set up directories
 output_dir = 'E:\most-dicom\XR_QC\Sent\Screening';
-final_destination = '';
+final_destination = 'C:\Users\fliu\Box Sync\OAI_XR_ReaderA\MOST';
 
 batch_dir = horzcat(output_dir,'\Batches\Batch_',dvd_date);
 mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
@@ -40,7 +26,7 @@ final_mdbf = horzcat(final_destination,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_d
 if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
   % query for blinded images that have not been sent
-  [x_send,f_send] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening WHERE send_flag=0');
+  [x_send,f_send] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening WHERE Send_flag=0');
   pause(1);
 
   % stop if no images to send
@@ -51,9 +37,9 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   % filter out IDs that have been previously sent
   [x_sent,f_sent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening WHERE send_flag BETWEEN 1 and 2'); % flag 1 for PA, flag 2 for DF
   pause(1);
-  unique_sent_IDs = unique(x_send(:,indcfind(f_sent,'^PatientID$','regexpi')));
+  unique_sent_IDs = unique(x_sent(:,indcfind(f_sent,'^PatientID$','regexpi')));
 
-  x_send = x_send(~ismember(x_send(:,indcfind(f_send,'^PatientID$','regexpi')),unique_sent_IDs);
+  x_send = x_send(~ismember(x_send(:,indcfind(f_send,'^PatientID$','regexpi')),unique_sent_IDs),:);
 
   % stop if no images to send
   if(size(x_send,1)<1)
@@ -79,8 +65,9 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
   % limit how many new XRs to send
   lim_num = 20;
-  if(size(x_send,1)>lim_num)
-    x_send = x_send(1:lim_num,:);
+  unique_send_IDs = unique(x_send(:,indcfind(f_send,'^PatientID$','regexpi')));
+  if(size(unique_send_IDs,1)>lim_num)
+      x_send = x_send(ismember(x_send(:,indcfind(f_send,'^PatientID$','regexpi')),unique_send_IDs(1:lim_num)),:);
   end
 
   % query for adjudication review
@@ -100,7 +87,25 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
   % collect all files to send
   x_up = {};
-  x_up = [x_up; x_send; x_adj; x_resend; x_IF_aligned];
+  x_up = [x_up; x_send];
+  
+  x_up_new = {};
+  x_up_new = [x_up_new; x_send];
+  
+  x_up_old = {};
+  
+  if(size(x_resend,2)>1)
+      x_up = [x_up; x_resend];
+      x_up_new = [x_up_new; x_resend];
+  end
+  if(size(x_adj,2)>1)
+      x_up = [x_up; x_adj];
+      x_up_old = [x_up_old; x_adj];
+  end
+  if(size(x_IF_aligned,2)>1)
+      x_up = [x_up; x_IF_aligned];
+      x_up_old = [x_up_old; x_IF_aligned];
+  end
 
   if(size(x_up,1)>0) % continue if there are any IDs to send
 
@@ -141,23 +146,24 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
     end
 
-    % insert into scoresheet
-    conn = DeployMSAccessConn(mdbf);
-
     % get IDs for sending as blank scoresheets
-    prefill_up = [x_send; x_resend];
+    prefill_up = x_up_new;
 
     % Insert new blank records into scoresheet
-    InsertScoresheet_NewScreening(mdbf,prefill_up,f_send);
+    InsertScoresheet_NewScreening(mdbf,prefill_up,f_send,dvd_date);
 
     %% NEED CODE TO ADD ADJ AND IF SCORESHEET ENTRIES %%
-
     % get IDs for sending as adj
-    prefill_up = x_adj;
-    u_id = unique(prefill_up(:,f_PatientID));
+    prefill_up = x_up_old;
+    if(size(prefill_up,1)>0)
+        %  continue if any IDs for Adj/IF
+        
+        u_id = unique(prefill_up(:,f_PatientID));
+        
+    end
 
-
-
+    %% Send files to Reader
+    
     % copy to Box.com Sync folder
     copyfile(batch_dir,final_dir);
     copyfile(mdbf,final_mdbf);
@@ -174,7 +180,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
       UpdateMDB_WhereIs(mdbf_qc,'tblDICOMScreening',{'send_flag'},flag_cell,where_cell,1);
     end
 
-    if(size(x_adj,1)>0)
+    if(size(x_adj,1)>0 && size(x_adj,2)>1)
       % update tblSendAdj send_flags
 
       flag_cell = cell(size(x_adj,1));
@@ -185,7 +191,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
       UpdateMDB_WhereIs(mdbf_qc,'tblSendAdj',{'send_flag'},flag_cell,where_cell,1);
     end
 
-    if(size(x_resend,1)>0)
+    if(size(x_resend,1)>0 && size(x_resend,2)>1)
       % update tblResend send_flags
 
       flag_cell = cell(size(x_resend,1));
@@ -196,7 +202,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
       UpdateMDB_WhereIs(mdbf_qc,'tblResend',{'send_flag'},flag_cell,where_cell,1);
     end
 
-    if(size(x_IF_aligned,1)>0)
+    if(size(x_IF_aligned,1)>0 && size(x_IF_aligned,2)>1)
       % update tblSendIF send_flags
 
       flag_cell = cell(size(x_IF_aligned,1));

@@ -1,5 +1,21 @@
-function InsertScoresheet_NewScreening(mdbf,prefill_up,f_in)
+function InsertScoresheet_NewScreening(mdbf,prefill_up,f_in,dvd_date)
 % this function inserts new blank records for screening scoresheet
+
+% initialize
+side = 3;
+knee = 'B';
+
+% table columns for upload
+f_up = {...
+    'READINGID';...
+    'READINGACRO';...
+    'DVD';...
+    'SIDE';...
+    'KNEE';...
+    'V1BLINDDATE';...
+    'V1TFBARCDBU';...
+    'V1NUMXR';...
+    };
 
 % column indices
 f_filename = indcfind(f_in,'^filename$','regexpi');
@@ -21,7 +37,7 @@ for px=1:size(u_id,1)
   tmpid = u_id{px,1};
 
   % collect images with matching ID
-  tmpstudy = x_up(indcfind(x_up(:,f_PatientID),tmpid,'regexpi'),:);
+  tmpstudy = prefill_up(indcfind(prefill_up(:,f_PatientID),tmpid,'regexpi'),:);
 
   % collect metadata
   tmpname = tmpstudy{1,f_PatientName};
