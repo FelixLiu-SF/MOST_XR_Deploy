@@ -2,6 +2,8 @@ function Send_Screening_to_PA()
 %% function to send XRs for screening
 
 %% initialize
+disp(' ');
+disp('Initializing...');
 
 % parameters
 dvd_date = datestr(now,'yyyymmdd');
@@ -24,7 +26,13 @@ final_dir = horzcat(final_destination,'\DICOM\',dvd_date);
 final_mdbf = horzcat(final_destination,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
 
 if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
+    
+  disp(' ');
+  disp(horzcat('Processing batch: ',dvd_date));
 
+  disp(' ');
+  disp(horzcat('Reading data from database: ',mdbf_qc));
+  
   % query for blinded images that have not been sent
   [x_send,f_send] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening WHERE Send_flag=0');
   pause(1);
@@ -62,13 +70,21 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   if(size(x_send,1)<1)
     return;
   end
+  
+  disp(' ');
+  disp(horzcat('# of total X-rays to send: ',num2str(size(x_send,1))));
 
   % limit how many new XRs to send
   lim_num = 20;
   unique_send_IDs = unique(x_send(:,indcfind(f_send,'^PatientID$','regexpi')));
   if(size(unique_send_IDs,1)>lim_num)
       x_send = x_send(ismember(x_send(:,indcfind(f_send,'^PatientID$','regexpi')),unique_send_IDs(1:lim_num)),:);
+      
+      disp(' ');
+      disp(horzcat('Limiting # of new X-rays to send: ',num2str(size(x_send,1))));
   end
+  
+  
 
   % query for adjudication review
   [x_adj,f_adj] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblSendAdj WHERE send_flag=0');
@@ -108,7 +124,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   end
 
   if(size(x_up,1)>0) % continue if there are any IDs to send
-
+      
     % create batching directory
     mkdir(batch_dir);
 
@@ -127,6 +143,9 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     f_FileBarcode = indcfind(f_send,'^FileBarcode$','regexpi');
 
     % copy files to batching dir
+    disp(' ');
+    disp('Copying DICOM files.');
+    
     for fx=1:size(x_up,1)
 
       tmpf = x_up{fx,f_filename};
@@ -146,6 +165,9 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
     end
 
+    disp(' ');
+    disp('Insert scoresheet records for new X-rays.');
+    
     % get IDs for sending as blank scoresheets
     prefill_up = x_up_new;
 
@@ -157,6 +179,8 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     prefill_up = x_up_old;
     if(size(prefill_up,1)>0)
         %  continue if any IDs for Adj/IF
+        disp(' ');
+        disp('Insert scoresheet records for adjudications and incidental findings review.');
         
         u_id = unique(prefill_up(:,f_PatientID));
         
@@ -165,53 +189,66 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     %% Send files to Reader
     
     % copy to Box.com Sync folder
+    disp(' ');
+    disp('Send files to Reader');
     copyfile(batch_dir,final_dir);
     copyfile(mdbf,final_mdbf);
 
     % Update send_flags in database
-
+    disp(' ');
+    disp('Update tblDICOMScreening flags in database');
     if(size(x_send,1)>0)
       % update tblDICOMScreening send_flags
-      flag_cell = cell(size(x_send,1));
+      flag_cell = cell(size(x_send,1),1);
       flag_cell(:) = {1};
 
       where_cell = x_send(:,f_SOPInstanceUID);
 
-      UpdateMDB_WhereIs(mdbf_qc,'tblDICOMScreening',{'send_flag'},flag_cell,where_cell,1);
+      UpdateMDB_WhereIs(mdbf_qc,'tblDICOMScreening',{'send_flag'},flag_cell,{'SOPInstanceUID'},where_cell,1);
     end
 
     if(size(x_adj,1)>0 && size(x_adj,2)>1)
       % update tblSendAdj send_flags
+      disp(' ');
+      disp('Update tblSendAdj flags in database');
 
-      flag_cell = cell(size(x_adj,1));
+      flag_cell = cell(size(x_adj,1),1);
       flag_cell(:) = {1};
 
       where_cell = x_adj(:,f_SOPInstanceUID);
 
-      UpdateMDB_WhereIs(mdbf_qc,'tblSendAdj',{'send_flag'},flag_cell,where_cell,1);
+      UpdateMDB_WhereIs(mdbf_qc,'tblSendAdj',{'send_flag'},flag_cell,{'SOPInstanceUID'},where_cell,1);
     end
 
     if(size(x_resend,1)>0 && size(x_resend,2)>1)
       % update tblResend send_flags
+      disp(' ');
+      disp('Update tblResend flags in database');
 
-      flag_cell = cell(size(x_resend,1));
+      flag_cell = cell(size(x_resend,1),1);
       flag_cell(:) = {1};
 
       where_cell = x_resend(:,f_SOPInstanceUID);
 
-      UpdateMDB_WhereIs(mdbf_qc,'tblResend',{'send_flag'},flag_cell,where_cell,1);
+      UpdateMDB_WhereIs(mdbf_qc,'tblResend',{'send_flag'},flag_cell,{'SOPInstanceUID'},where_cell,1);
     end
 
     if(size(x_IF_aligned,1)>0 && size(x_IF_aligned,2)>1)
       % update tblSendIF send_flags
+      disp(' ');
+      disp('Update tblSendIF flags in database');
 
-      flag_cell = cell(size(x_IF_aligned,1));
+      flag_cell = cell(size(x_IF_aligned,1),1);
       flag_cell(:) = {1};
 
       where_cell = x_IF_aligned(:,f_SOPInstanceUID);
 
-      UpdateMDB_WhereIs(mdbf_qc,'tblSendIF',{'send_flag'},flag_cell,where_cell,1);
+      UpdateMDB_WhereIs(mdbf_qc,'tblSendIF',{'send_flag'},flag_cell,{'SOPInstanceUID'},where_cell,1);
     end
 
   end %if any images to send exist
+  
+else
+    disp(' ');
+    disp('Batch has already been processed.');
 end %if batch dir does not exist yet
