@@ -113,6 +113,8 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   
   x_up_old = {};
   
+  f_old = {};
+  
   if(size(x_resend,2)>1)
       x_up = [x_up; x_resend];
       x_up_new = [x_up_new; x_resend];
@@ -120,10 +122,12 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   if(size(x_adj,2)>1)
       x_up = [x_up; x_adj];
       x_up_old = [x_up_old; x_adj];
+      f_old = f_adj;
   end
   if(size(x_IF_aligned,2)>1)
       x_up = [x_up; x_IF_aligned];
       x_up_old = [x_up_old; x_IF_aligned];
+      f_old = f_IF;
   end
 
   if(size(x_up,1)>0) % continue if there are any IDs to send
@@ -185,7 +189,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
         disp(' ');
         disp('Insert scoresheet records for adjudications and incidental findings review.');
         
-        u_id = unique(prefill_up(:,f_PatientID));
+        InsertScoresheet_AdjIF_Screening(mdbf_qc,mdbf,prefill_up,f_old,dvd_date);
         
     end
 
