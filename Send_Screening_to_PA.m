@@ -71,17 +71,20 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     return;
   end
   
+  unique_send_IDs = unique(x_send(:,indcfind(f_send,'^PatientID$','regexpi')));
+  
   disp(' ');
-  disp(horzcat('# of total X-rays to send: ',num2str(size(x_send,1))));
+  disp(horzcat('# of total IDs with X-rays to send: ',num2str(size(unique_send_IDs,1))));
 
   % limit how many new XRs to send
   lim_num = 20;
-  unique_send_IDs = unique(x_send(:,indcfind(f_send,'^PatientID$','regexpi')));
   if(size(unique_send_IDs,1)>lim_num)
       x_send = x_send(ismember(x_send(:,indcfind(f_send,'^PatientID$','regexpi')),unique_send_IDs(1:lim_num)),:);
       
+      unique_send_IDs = unique(x_send(:,indcfind(f_send,'^PatientID$','regexpi')));
+      
       disp(' ');
-      disp(horzcat('Limiting # of new X-rays to send: ',num2str(size(x_send,1))));
+      disp(horzcat('Limiting # of total IDs with X-rays to send: ',num2str(size(unique_send_IDs,1))));
   end
   
   
@@ -168,7 +171,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     disp(' ');
     disp('Insert scoresheet records for new X-rays.');
     
-    % get IDs for sending as blank scoresheets
+    % get IDs for sending as blank records
     prefill_up = x_up_new;
 
     % Insert new blank records into scoresheet
