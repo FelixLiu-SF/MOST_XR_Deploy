@@ -24,9 +24,6 @@ for fx=1:size(tmpseries,1)
     end
 
     tmpseries{fx,8} = trueBA;
-    
-    disp(thisCalcBA); disp(trueBA);
-
 
   catch beamangle_err
       
