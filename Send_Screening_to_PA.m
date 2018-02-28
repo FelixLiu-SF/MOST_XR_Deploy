@@ -181,7 +181,6 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     % Insert new blank records into scoresheet
     InsertScoresheet_NewScreening(mdbf,prefill_up,f_send,dvd_date);
 
-    %% NEED CODE TO ADD ADJ AND IF SCORESHEET ENTRIES %%
     % get IDs for sending as adj
     prefill_up = x_up_old;
     if(size(prefill_up,1)>0)

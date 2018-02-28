@@ -1,4 +1,4 @@
-function [tmpstudy_out]=Blind_OldCohort_XR_Study(dcmdir_out,tmpid,tmpstudy,accnum_qc)
+function [tmpstudy_out]=Blind_NewCohort_XR_Study(dcmdir_out,tmpid,tmpstudy,accnum_qc)
 
 %% initialize
 tmpstudy_out = {};

@@ -58,16 +58,20 @@ f_order = [...
 %% filter out processed files by SOP
 disp(' ');
 disp('Filter our previously blinded files');
-SOP_processed = intersect(x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi')),x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi')));
-x_unprocessed = x_category(~ismember(x_category(:,2),SOP_processed),:);
+SOP_processed_qc = x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi'));
+SOP_processed_screening = x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'));
+
+x_unprocessed =             x_category(~ismember(x_category(:,2),SOP_processed_qc),:);
+x_unprocessed_screening =   x_category(~ismember(x_category(:,2),SOP_processed_screening),:);
 
 %% filter out unstitched full limb views
 x_unprocessed(indcfind(x_unprocessed(:,6),'^Unstitched','regexpi'),:) = [];
+x_unprocessed_screening(indcfind(x_unprocessed_screening(:,6),'^Unstitched','regexpi'),:) = [];
 
 disp(' ');
 disp(horzcat('# of new files to blind: ',num2str(size(x_unprocessed,1))));
 
-%% process and blind all new XRs
+%% process and blind all new XRs for QC
 disp(' ');
 disp('Blind new X-ray images');
 if(size(x_unprocessed,1)>0)
@@ -118,7 +122,7 @@ if(size(x_unprocessed,1)>0)
 
     elseif(isempty(chk_oldcohort) && ~isempty(chk_newcohort))
         
-      %% NEW cohort participant, also blind for screening
+      %% NEW cohort participant
 
       % iterate the accession number counter for QC
       accnum_qc = accnum_qc+1;
@@ -132,6 +136,52 @@ if(size(x_unprocessed,1)>0)
       if(size(tmpstudy_newcohort_blinded,1)>0)
         UploadToMDB(mdbf,'tblDICOMQC',f_up_qc,tmpstudy_newcohort_blinded(:,[11,2:9,12:13]));
       end
+
+
+    end %blinding by cohort
+
+  end %ix
+end
+  
+  %% process and blind all new XRs for Screening
+disp(' ');
+disp('Blind new Screening X-ray images');
+if(size(x_unprocessed_screening,1)>0)
+
+  unq_ids = unique(x_unprocessed_screening(:,3));
+  
+  disp(' ');
+  disp(horzcat('# of IDs to blind: ',num2str(size(unq_ids,1))));
+
+  for ix=1:size(unq_ids,1) % loop through each ID
+
+    tmpid = unq_ids{ix,1};
+    
+    disp(ix);
+    disp(tmpid);
+
+    % get a single XR exam by ID and date
+    tmpstudy = x_unprocessed_screening(indcfind(x_unprocessed_screening(:,3),tmpid,'regexpi'),:);
+    tmpstudydate = tmpstudy{1,5};
+    tmpstudy = tmpstudy(indcfind(tmpstudy(:,5),tmpstudydate,'regexpi'),:);
+    tmpstudy = sortrows(tmpstudy,[6,5,2,1]);
+
+    % get patient name
+    tmpname = tmpstudy{1,4};
+
+    %% check cohort by ID
+    chk_oldcohort = regexpi(tmpid,'(MB0[0-2][0-9]{3}|MI5[0-2][0-9]{3})');
+    chk_newcohort = regexpi(tmpid,'(MB0[3-9][0-9]{3}|MI5[3-9][0-9]{3})');
+
+
+    %% switch blinding by cohort
+    if(~isempty(chk_oldcohort) && isempty(chk_newcohort))
+        
+      %% OLD cohort participant, do not screen
+
+    elseif(isempty(chk_oldcohort) && ~isempty(chk_newcohort))
+        
+      %% NEW cohort participant,  blind for screening
 
       % iterate the accession number counter for screening
       accnum_sc = accnum_sc+1;
@@ -150,7 +200,7 @@ if(size(x_unprocessed,1)>0)
 
   end %ix
 
-  %% save .mat file
-  save(savef);
-
 end %size>0
+
+%% save .mat file
+save(savef);

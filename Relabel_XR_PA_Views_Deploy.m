@@ -14,7 +14,7 @@ for fx=1:size(tmpseries,1)
     end
 
     tmpseries{fx,7} = thisCalcBA;
-
+    
     BAchoice = [5,10,15];
     [~,bx] = min(abs(BAchoice - abs(thisCalcBA)));
     trueBA = BAchoice(1,bx);
@@ -24,8 +24,14 @@ for fx=1:size(tmpseries,1)
     end
 
     tmpseries{fx,8} = trueBA;
+    
+    disp(thisCalcBA); disp(trueBA);
 
-  catch
+
+  catch beamangle_err
+      
+    disp(beamangle_err.message);  
+      
     thisCalcBA = 0;
     trueBA = 10;
 
