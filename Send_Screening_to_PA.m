@@ -18,7 +18,7 @@ mdbf_template = list_template{end,1};
 
 % set up directories
 output_dir = 'E:\most-dicom\XR_QC\Sent\Screening';
-final_destination = 'E:\Program Files\Box Sync\OAI_XR_ReaderA\MOST';
+final_destination = 'C:\Program Files\Box Sync\OAI_XR_ReaderA\MOST';
 
 batch_dir = horzcat(output_dir,'\Batches\Batch_',dvd_date);
 mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
@@ -199,6 +199,20 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     disp('Send files to Reader');
     copyfile(batch_dir,final_dir);
     copyfile(mdbf,final_mdbf);
+    
+    % rename DICOM files for Box sync
+    [~, final_botdir, ~]=botdir(final_dir);
+    final_botdir = final_botdir';
+    
+    for bx=1:size(final_botdir,1)
+        tmpbotdir = final_botdir{bx,1};
+        [~,~,tmpfilelist] = foldertroll(tmpbotdir,'');
+        for cx=1:size(tmpfilelist,1);
+            tmpf = tmpfilelist{cx,1};
+            newf = horzcat(tmpbotdir,'\',num2str(cx));
+            movefile(tmpf,newf);
+        end
+    end
 
     % Update send_flags in database
     disp(' ');
