@@ -45,7 +45,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   end
 
   % filter out IDs that have been previously sent
-  [x_sent,f_sent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening WHERE send_flag BETWEEN 1 and 2'); % flag 1 for PA, flag 2 for DF
+  [x_sent,f_sent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening WHERE send_flag BETWEEN 1 and 9'); % flag 1 for PA, flag 2 for DF, other flags not assigned yet
   pause(1);
   unique_sent_IDs = unique(x_sent(:,indcfind(f_sent,'^PatientID$','regexpi')));
 
