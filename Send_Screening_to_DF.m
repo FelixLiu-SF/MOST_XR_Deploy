@@ -157,28 +157,14 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
     %% Send files to Reader
 
-    % copy to Box.com Sync folder
+    % copy to MOST-FTPS folder
     disp(' ');
     disp('Send files to Reader');
     copyfile(batch_dir,final_dir);
     copyfile(mdbf,final_mdbf);
 
-    % rename DICOM files for Box sync
-    [~, final_botdir, ~]=botdir(final_dir);
-    final_botdir = final_botdir';
-
-    for bx=1:size(final_botdir,1)
-        tmpbotdir = final_botdir{bx,1};
-        [~,~,tmpfilelist] = foldertroll(tmpbotdir,'');
-        for cx=1:size(tmpfilelist,1);
-            tmpf = tmpfilelist{cx,1};
-            newf = horzcat(tmpbotdir,'\',num2str(cx));
-            movefile(tmpf,newf);
-        end
-    end
-
-    % copy files to MOST-FTPS for Boston University as well
-    copyfile(batch_dir,extra_dir);
+    % copy blank PA scoresheet to secondary folder
+    copyfile(mdbf,extra_mdbf);
 
     % Update send_flags in database
     disp(' ');
@@ -186,50 +172,11 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     if(size(x_send,1)>0)
       % update tblDICOMScreening send_flags
       flag_cell = cell(size(x_send,1),1);
-      flag_cell(:) = {1};
+      flag_cell(:) = {2};
 
       where_cell = x_send(:,f_SOPInstanceUID);
 
       UpdateMDB_WhereIs(mdbf_qc,'tblDICOMScreening',{'send_flag'},flag_cell,{'SOPInstanceUID'},where_cell,1);
-    end
-
-    if(size(x_adj,1)>0 && size(x_adj,2)>1)
-      % update tblSendAdj send_flags
-      disp(' ');
-      disp('Update tblSendAdj flags in database');
-
-      flag_cell = cell(size(x_adj,1),1);
-      flag_cell(:) = {1};
-
-      where_cell = x_adj(:,f_SOPInstanceUID);
-
-      UpdateMDB_WhereIs(mdbf_qc,'tblSendAdj',{'send_flag'},flag_cell,{'SOPInstanceUID'},where_cell,1);
-    end
-
-    if(size(x_resend,1)>0 && size(x_resend,2)>1)
-      % update tblResend send_flags
-      disp(' ');
-      disp('Update tblResend flags in database');
-
-      flag_cell = cell(size(x_resend,1),1);
-      flag_cell(:) = {1};
-
-      where_cell = x_resend(:,f_SOPInstanceUID);
-
-      UpdateMDB_WhereIs(mdbf_qc,'tblResend',{'send_flag'},flag_cell,{'SOPInstanceUID'},where_cell,1);
-    end
-
-    if(size(x_IF_aligned,1)>0 && size(x_IF_aligned,2)>1)
-      % update tblSendIF send_flags
-      disp(' ');
-      disp('Update tblSendIF flags in database');
-
-      flag_cell = cell(size(x_IF_aligned,1),1);
-      flag_cell(:) = {1};
-
-      where_cell = x_IF_aligned(:,f_SOPInstanceUID);
-
-      UpdateMDB_WhereIs(mdbf_qc,'tblSendIF',{'send_flag'},flag_cell,{'SOPInstanceUID'},where_cell,1);
     end
 
   end %if any images to send exist
