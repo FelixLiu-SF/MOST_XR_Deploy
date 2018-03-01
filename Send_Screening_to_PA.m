@@ -19,11 +19,13 @@ mdbf_template = list_template{end,1};
 % set up directories
 output_dir = 'E:\most-dicom\XR_QC\Sent\Screening';
 final_destination = 'C:\Program Files\Box Sync\OAI_XR_ReaderA\MOST';
+extra_destination = '\\MOST-FTPS\mostftps\SITE03\XR\DOWNLOAD\SCREENING\DICOM\';
 
 batch_dir = horzcat(output_dir,'\Batches\Batch_',dvd_date);
 mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
 final_dir = horzcat(final_destination,'\DICOM\',dvd_date);
 final_mdbf = horzcat(final_destination,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
+extra_dir = horzcat(extra_destination,'\DICOM\',dvd_date);
 
 if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     
@@ -213,6 +215,9 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
             movefile(tmpf,newf);
         end
     end
+    
+    % copy files to MOST-FTPS for Boston University as well
+    copyfile(batch_dir,extra_dir);
 
     % Update send_flags in database
     disp(' ');
