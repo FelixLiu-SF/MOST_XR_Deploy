@@ -11,7 +11,12 @@ dvd_date = datestr(now,'yyyymmdd');
 % mdbf
 mdbf_qc = '\\fu-hsing\most\Imaging\144-month\MOST_XR_144M_Master.accdb';
 
-% get scoresheet template
+% get scoresheet template for PA
+template_dir_pa = 'S:\FelixTemp\XR\Scoresheet_Templates\ScreeningPA_Templates';
+[~,~,list_template_pa]=foldertroll(template_dir_pa,'.mdb');
+mdbf_template_pa = list_template_pa{end,1};
+
+% get scoresheet template for DF
 template_dir = 'S:\FelixTemp\XR\Scoresheet_Templates\ScreeningDF_Templates';
 [~,~,list_template]=foldertroll(template_dir,'.mdb');
 mdbf_template = list_template{end,1};
@@ -22,19 +27,19 @@ final_destination = '\\MOST-FTPS\mostftps\SITE03\XR\DOWNLOAD\SCREENING';
 extra_destination = 'E:\most-dicom\XR_QC\Sent\ScreeningSecondary';
 
 batch_dir = horzcat(output_dir,'\Batches\Batch_',dvd_date);
-mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
+mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningDF_',dvd_date,'.mdb');
 final_dir = horzcat(final_destination,'\DICOM\',dvd_date);
 final_mdbf = horzcat(final_destination,'\Scoresheets\MOST_XR_ScreeningDF_',dvd_date,'.mdb');
-extra_mdbf = horzcat(final_destination,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
+extra_mdbf = horzcat(extra_destination,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
 
 if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
-    
+
   disp(' ');
   disp(horzcat('Processing batch: ',dvd_date));
 
   disp(' ');
   disp(horzcat('Reading data from database: ',mdbf_qc));
-  
+
   % query for blinded images that have not been sent
   [x_send,f_send] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMScreening WHERE Send_flag=0');
   pause(1);
@@ -72,9 +77,9 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   if(size(x_send,1)<1)
     return;
   end
-  
+
   unique_send_IDs = unique(x_send(:,indcfind(f_send,'^PatientID$','regexpi')));
-  
+
   disp(' ');
   disp(horzcat('# of total IDs with X-rays to send: ',num2str(size(unique_send_IDs,1))));
 
@@ -82,63 +87,27 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   lim_num = 20;
   if(size(unique_send_IDs,1)>lim_num)
       x_send = x_send(ismember(x_send(:,indcfind(f_send,'^PatientID$','regexpi')),unique_send_IDs(1:lim_num)),:);
-      
+
       unique_send_IDs = unique(x_send(:,indcfind(f_send,'^PatientID$','regexpi')));
-      
+
       disp(' ');
       disp(horzcat('Limiting # of total IDs with X-rays to send: ',num2str(size(unique_send_IDs,1))));
   end
-  
-  
-
-  % query for adjudication review
-  [x_adj,f_adj] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblSendAdj WHERE send_flag=0');
-  pause(1);
-  [x_adj] = AlignMSColumns(x_adj,f_adj,f_send);
-
-  % query for resend
-  [x_resend,f_resend] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblResend WHERE send_flag=0');
-  pause(1);
-  [x_resend] = AlignMSColumns(x_resend,f_resend,f_send);
-
-  % query for incidental findings review
-  [x_IF,f_IF] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblSendIF WHERE send_flag=0');
-  pause(1);
-  [x_IF_aligned] = AlignMSColumns(x_IF,f_IF,f_send);
 
   % collect all files to send
   x_up = {};
   x_up = [x_up; x_send];
-  
-  x_up_new = {};
-  x_up_new = [x_up_new; x_send];
-  
-  x_up_old = {};
-  
-  f_old = {};
-  
-  if(size(x_resend,2)>1)
-      x_up = [x_up; x_resend];
-      x_up_new = [x_up_new; x_resend];
-  end
-  if(size(x_adj,2)>1)
-      x_up = [x_up; x_adj];
-      x_up_old = [x_up_old; x_adj];
-      f_old = f_adj;
-  end
-  if(size(x_IF_aligned,2)>1)
-      x_up = [x_up; x_IF_aligned];
-      x_up_old = [x_up_old; x_IF_aligned];
-      f_old = f_IF;
-  end
 
   if(size(x_up,1)>0) % continue if there are any IDs to send
-      
+
     % create batching directory
     mkdir(batch_dir);
 
     % create scoresheet file
     copyfile(mdbf_template,mdbf);
+
+    % create secondary file for PA
+    copyfile(mdbf_template_pa,extra_mdbf);
 
     % column indices
     f_filename = indcfind(f_send,'^filename$','regexpi');
@@ -154,7 +123,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     % copy files to batching dir
     disp(' ');
     disp('Copying DICOM files.');
-    
+
     for fx=1:size(x_up,1)
 
       tmpf = x_up{fx,f_filename};
@@ -176,36 +145,28 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
     disp(' ');
     disp('Insert scoresheet records for new X-rays.');
-    
+
     % get IDs for sending as blank records
-    prefill_up = x_up_new;
+    prefill_up = x_up;
 
     % Insert new blank records into scoresheet
     InsertScoresheet_NewScreening(mdbf,prefill_up,f_send,dvd_date);
 
-    % get IDs for sending as adj
-    prefill_up = x_up_old;
-    if(size(prefill_up,1)>0)
-        %  continue if any IDs for Adj/IF
-        disp(' ');
-        disp('Insert scoresheet records for adjudications and incidental findings review.');
-        
-        InsertScoresheet_AdjIF_Screening(mdbf_qc,mdbf,prefill_up,f_old,dvd_date);
-        
-    end
+    % Insert new blank records into scoresheet
+    InsertScoresheet_NewScreening(extra_mdbf,prefill_up,f_send,dvd_date);
 
     %% Send files to Reader
-    
+
     % copy to Box.com Sync folder
     disp(' ');
     disp('Send files to Reader');
     copyfile(batch_dir,final_dir);
     copyfile(mdbf,final_mdbf);
-    
+
     % rename DICOM files for Box sync
     [~, final_botdir, ~]=botdir(final_dir);
     final_botdir = final_botdir';
-    
+
     for bx=1:size(final_botdir,1)
         tmpbotdir = final_botdir{bx,1};
         [~,~,tmpfilelist] = foldertroll(tmpbotdir,'');
@@ -215,7 +176,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
             movefile(tmpf,newf);
         end
     end
-    
+
     % copy files to MOST-FTPS for Boston University as well
     copyfile(batch_dir,extra_dir);
 
@@ -272,7 +233,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     end
 
   end %if any images to send exist
-  
+
 else
     disp(' ');
     disp('Batch has already been processed.');
