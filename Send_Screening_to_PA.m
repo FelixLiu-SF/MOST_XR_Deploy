@@ -19,7 +19,7 @@ mdbf_template = list_template{end,1};
 % set up directories
 output_dir = 'E:\most-dicom\XR_QC\Sent\Screening';
 final_destination = 'C:\Program Files\Box Sync\OAI_XR_ReaderA\MOST';
-extra_destination = '\\MOST-FTPS\mostftps\SITE03\XR\DOWNLOAD\SCREENING\DICOM\';
+extra_destination = '\\MOST-FTPS\mostftps\SITE03\XR\DOWNLOAD\SCREENING';
 
 batch_dir = horzcat(output_dir,'\Batches\Batch_',dvd_date);
 mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
