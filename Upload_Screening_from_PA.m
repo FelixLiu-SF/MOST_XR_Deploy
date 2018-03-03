@@ -1,4 +1,4 @@
-function Upload_Screening_to_PA()
+function Upload_Screening_from_PA()
 %% function to upload XRs from screening
 
 %% initialize
@@ -18,6 +18,15 @@ updir = 'E:\most-dicom\XR_QC\Uploaded\Screening';
 
 [~,~,src_list] = foldertroll(srcdir,'.mdb');
 [~,~,up_list] = foldertroll(updir,'.mdb');
+
+if(size(src_list,1)>0)
+    disp(' ');
+    disp('List of scoresheets from reader: ');
+    disp(src_list(:,1));
+else
+    disp(' ');
+    disp('No scoresheets from reader found.');
+end
 
 %% copy new scoresheets for uploading
 disp(' ');

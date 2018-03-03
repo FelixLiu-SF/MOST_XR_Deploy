@@ -58,15 +58,18 @@ f_order = [...
 %% filter out processed files by SOP
 disp(' ');
 disp('Filter our previously blinded files');
-SOP_processed_qc = x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi'));
-SOP_processed_screening = x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'));
+SOP_processed_qc =          x_qc(:,indcfind(f_qc,'^SOPInstanceUID$','regexpi'));
+SOP_processed_screening =   x_screening(:,indcfind(f_screening,'^SOPInstanceUID$','regexpi'));
 
 x_unprocessed =             x_category(~ismember(x_category(:,2),SOP_processed_qc),:);
 x_unprocessed_screening =   x_category(~ismember(x_category(:,2),SOP_processed_screening),:);
 
-%% filter out unstitched full limb views
+%% filter out unstitched full limb views from qc
 x_unprocessed(indcfind(x_unprocessed(:,6),'^Unstitched','regexpi'),:) = [];
+
+%% filter out all full limbs views from screening
 x_unprocessed_screening(indcfind(x_unprocessed_screening(:,6),'^Unstitched','regexpi'),:) = [];
+x_unprocessed_screening(indcfind(x_unprocessed_screening(:,6),'^Full Limb','regexpi'),:) = [];
 
 disp(' ');
 disp(horzcat('# of new files to blind: ',num2str(size(x_unprocessed,1))));

@@ -29,7 +29,7 @@ extra_destination = 'E:\most-dicom\XR_QC\Sent\ScreeningSecondary';
 batch_dir = horzcat(output_dir,'\Batches\Batch_',dvd_date);
 mdbf = horzcat(output_dir,'\Scoresheets\MOST_XR_ScreeningDF_',dvd_date,'.mdb');
 final_dir = horzcat(final_destination,'\DICOM\',dvd_date);
-final_mdbf = horzcat(final_destination,'\Scoresheets\MOST_XR_ScreeningDF_',dvd_date,'.mdb');
+final_mdbf = horzcat(final_destination,'\MOST_XR_ScreeningDF_',dvd_date,'.mdb');
 extra_mdbf = horzcat(extra_destination,'\Scoresheets\MOST_XR_ScreeningPA_',dvd_date,'.mdb');
 
 if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
@@ -162,9 +162,6 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     disp('Send files to Reader');
     copyfile(batch_dir,final_dir);
     copyfile(mdbf,final_mdbf);
-
-    % copy blank PA scoresheet to secondary folder
-    copyfile(mdbf,extra_mdbf);
 
     % Update send_flags in database
     disp(' ');

@@ -1,5 +1,5 @@
 function Upload_Scoresheet_to_tblPA(master_mdbf,mdbf,destf)
-%% function to upload XRs from screening
+%% function to upload XRs results from screening
 
 %% initialize
 disp(' ');
