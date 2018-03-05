@@ -40,7 +40,7 @@ for jx=1:size(xS,1)
 
   tmpid = xS(jx,col_id);
   disp(' ');
-  disp(tmpid;)
+  disp(tmpid);
 
     % check if signed by reader
     chk_read = xS{jx,col_edate};
