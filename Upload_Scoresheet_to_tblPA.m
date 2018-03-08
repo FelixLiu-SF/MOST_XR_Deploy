@@ -74,7 +74,7 @@ for jx=1:size(xS,1)
             disp('The ID above is already uploaded.');
 
             % check if this is an adjudication result
-            ax = intersect(tmpid,x2(:,col_adjid));
+            ax = indcfind(x2(:,col_adjif),tmpid,'regexpi');
             if(~isempty(ax))
 
               % ID is in the Adj table, check if it was actually sent for adj
