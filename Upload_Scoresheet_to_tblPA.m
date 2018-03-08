@@ -12,6 +12,7 @@ disp(horzcat('Uploading scoresheet into database: ',mdbf));
 master_id =    indcfind(f1,'^READINGID$','regexpi');
 
 [x2,f2] = DeployMDBquery(master_mdbf,'SELECT * FROM tblSendAdj');
+
 col_adjid =    indcfind(f2,'^PatientID$','regexpi');
 col_adjsend =  indcfind(f2,'^Send_flag$','regexpi');
 
@@ -74,7 +75,8 @@ for jx=1:size(xS,1)
             disp('The ID above is already uploaded.');
 
             % check if this is an adjudication result
-            ax = indcfind(x2(:,col_adjif),tmpid,'regexpi');
+      
+            ax = indcfind(x2(:,col_adjid),tmpid,'regexpi');
             if(~isempty(ax))
 
               % ID is in the Adj table, check if it was actually sent for adj
