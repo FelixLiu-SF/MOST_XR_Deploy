@@ -53,6 +53,8 @@ disp(' ');
 disp('Uploading results to database');
 [~,~,new_list] = foldertroll(newdir,'.mdb');
 
+new_list = new_list(indcfind(new_list(:,3),'MOST_XR_ScreeningDF_[0-9]{8}','regexpi'),:);
+
 for ix=1:size(new_list,1)
     
     tmp_mdbf =  new_list{ix,1};

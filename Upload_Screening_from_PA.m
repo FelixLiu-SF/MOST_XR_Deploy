@@ -19,6 +19,8 @@ updir = 'E:\most-dicom\XR_QC\Uploaded\Screening';
 [~,~,src_list] = foldertroll(srcdir,'.mdb');
 [~,~,up_list] = foldertroll(updir,'.mdb');
 
+src_list = src_list(indcfind(src_list(:,3),'MOST_XR_ScreeningPA_[0-9]{8}','regexpi'),:);
+
 if(size(src_list,1)>0)
     disp(' ');
     disp('List of scoresheets from reader: ');
@@ -45,6 +47,8 @@ end
 disp(' ');
 disp('Uploading results to database');
 [~,~,new_list] = foldertroll(newdir,'.mdb');
+
+new_list = new_list(indcfind(new_list(:,3),'MOST_XR_ScreeningPA_[0-9]{8}','regexpi'),:);
 
 for ix=1:size(new_list,1)
     
