@@ -51,7 +51,5 @@ end
 
 close(conn);
 
-if(isempty(chk_read_all))
-    movefile(mdbf,destf);
-end
+movefile(mdbf,destf);
         
