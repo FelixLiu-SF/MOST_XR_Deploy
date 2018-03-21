@@ -28,7 +28,7 @@ src_list = src_list(indcfind(src_list(:,3),'MOST_XR_ScreeningDF_[0-9]{8}','regex
 if(size(src_list,1)>0)
     disp(' ');
     disp('List of scoresheets from reader: ');
-    disp(src_list(:,1));
+    disp(src_list(:,3));
 else
     disp(' ');
     disp('No scoresheets from reader found.');
