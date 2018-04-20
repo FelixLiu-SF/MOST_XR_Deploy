@@ -10,7 +10,7 @@ disp('Initializing...');
 master_mdbf = '\\fu-hsing\most\Imaging\144-month\MOST_XR_144M_Master.accdb';
 
 % directories
-srcdir = 'C:\Program Files\Box Sync\OAI_XR_ReaderA\MOST';
+srcdir = '\\most-fileexch\c$\Users\fliu\Box Sync\OAI_XR_ReaderA\MOST';
 newdir = 'E:\most-dicom\XR_QC\Received\Screening';
 updir = 'E:\most-dicom\XR_QC\Uploaded\Screening';
 
