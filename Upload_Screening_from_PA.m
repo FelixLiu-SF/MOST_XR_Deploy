@@ -48,14 +48,17 @@ disp(' ');
 disp('Uploading results to database');
 [~,~,new_list] = foldertroll(newdir,'.mdb');
 
-new_list = new_list(indcfind(new_list(:,3),'MOST_XR_ScreeningPA_[0-9]{8}','regexpi'),:);
+if(size(new_list,1)>0)
 
-for ix=1:size(new_list,1)
-    
-    tmp_mdbf =  new_list{ix,1};
-    tmp_destf = horzcat(updir,'\',new_list{ix,3});
-    
-    Upload_Scoresheet_to_tblPA(master_mdbf,tmp_mdbf,tmp_destf);
-    pause(5);
-    
+    new_list = new_list(indcfind(new_list(:,3),'MOST_XR_ScreeningPA_[0-9]{8}','regexpi'),:);
+
+    for ix=1:size(new_list,1)
+
+        tmp_mdbf =  new_list{ix,1};
+        tmp_destf = horzcat(updir,'\',new_list{ix,3});
+
+        Upload_Scoresheet_to_tblPA(master_mdbf,tmp_mdbf,tmp_destf);
+        pause(5);
+
+    end
 end
