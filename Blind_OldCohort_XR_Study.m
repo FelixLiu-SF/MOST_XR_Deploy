@@ -92,8 +92,8 @@ if(size(loop_series,1)>0)
 
     %% Add XR images from previous MOST visits
     px = indcfind(KXRdata(:,2),tmpid,'regexpi');
-    prev_visit = {'84M','60M','30M','15M','BL'};
-    for pvx = 1:size(prev_visit,2)
+    prev_visits = {'84M','60M','30M','15M','BL'};
+    for pvx = 1:size(prev_visits,2)
       add_x = intersect(px,indcfind(KXRdata(:,6),horzcat(prev_visits{1,pvx},'.*',prev_str),'regexpi'));
       if(~isempty(add_x))
         pv_add = cell(size(add_x,1),6);
