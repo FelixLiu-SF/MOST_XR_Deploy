@@ -34,7 +34,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   disp(horzcat('Reading data from database: ',mdbf_qc));
   
   % query for blinded images that have not been sent
-  [x_send,f_send] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMQC WHERE Send_flag=0');
+  [x_send,f_send] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMQC WHERE (Send_flag=0 OR Send_flag=2)');
   pause(1);
   
   % filter for core X-ray sequences only
@@ -160,7 +160,10 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     if(size(x_send,1)>0)
       % update tblDICOMQC send_flags
       flag_cell = cell(size(x_send,1),1);
-      flag_cell(:) = {1};
+      
+      existing_flags = cell2mat(x_send(:,indcfind(f_send,'Send_flag','regexpi'))); %get existing flags
+      flag_cell(:) = {1}; %prefill with ones
+      flag_cell(existing_flags==2) = {4}; %change prior visit flags (2) to sent flag (4)
 
       where_cell = x_send(:,f_SOPInstanceUID);
 

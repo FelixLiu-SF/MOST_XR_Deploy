@@ -98,6 +98,10 @@ if(size(loop_series,1)>0)
       if(~isempty(add_x))
         pv_add = cell(size(add_x,1),6);
         pv_add(:,1) = KXRdata(add_x,1);
+        
+        pv_add(:,3) = KXRdata(add_x,2);
+        
+        pv_add(:,5) = KXRdata(add_x,3);
         pv_add(:,6) = KXRdata(add_x,6);
         tmpseries = [tmpseries; pv_add];
       end
@@ -113,6 +117,13 @@ if(size(loop_series,1)>0)
 
       tmpacc3 = horzcat(tmpacc2,zerofillstr(fx,2));
       new_desc = horzcat(tmpdesc,' ',tmpacc3);
+      
+      tmpSOPUID = tmpinfo.SOPInstanceUID;
+      tmp_namefields = fieldnames(tmpinfo.PatientName);
+      tmp_patientname = '';
+      for nx=1:size(tmp_namefields,1)
+        tmp_patientname = horzcat(tmp_patientname,getfield(tmpinfo.PatientName,tmp_namefields{nx}));
+      end
 
       % copy file to blinding destination
       newf = horzcat(newdir,'\',tmpacc3);
@@ -130,6 +141,14 @@ if(size(loop_series,1)>0)
       tmpseries{fx,9} =  tmpacc3;
       tmpseries{fx,10} = newstudyuid;
       tmpseries{fx,11} = newf;
+      
+      % fill in missing metadata
+      if(isempty(tmpseries{fx,2}))
+          tmpseries{fx,2} =  tmpSOPUID;
+      end
+      if(isempty(tmpseries{fx,4}))
+          tmpseries{fx,4} =  tmp_patientname;
+      end
 
       % generate blinding info
       % blind XR with blinding info
@@ -151,7 +170,11 @@ if(size(loop_series,1)>0)
       tmpseries{fx,12} = exit_code;
 
       % Add a flag to indicate sending
-      tmpseries{fx,13} = 0;
+      if(isempty(regexpi(tmpseries{fx,5},'^(199[0-9]|200[0-9]|201[0-7])')))
+        tmpseries{fx,13} = 0;
+      else
+        tmpseries{fx,13} = 2;
+      end
 
     end %fx
 
