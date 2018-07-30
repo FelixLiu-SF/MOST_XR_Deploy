@@ -34,19 +34,21 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   disp(horzcat('Reading data from database: ',mdbf_qc));
   
   % query for blinded images that have not been sent
-  [x_send,f_send] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMQC WHERE (Send_flag=0 OR Send_flag=2)');
+  [x_send,f_send] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMQC WHERE (Send_flag=0 OR Send_flag=2)'); %flag 0 for 144m, flag 2 for 168m
   pause(1);
   
   % filter for core X-ray sequences only
-  x_send = x_send(indcfind(x_send(:,indcfind(f_send,'^View$','regexpi')),'^(PA|LLAT|RLAT)','regexpi'),:);
+  x_send = x_send(indcfind(x_send(:,indcfind(f_send,'^View$','regexpi')),'^(PA|LLAT|RLAT|BL Visit|15M Visit|30M Visit|60M Visit|84M Visit)','regexpi'),:);
 
   % stop if no images to send
   if(size(x_send,2)<2)
+    disp('No images to send.');
     return;
   end
 
   % filter out IDs that have been previously sent
-  [x_sent,f_sent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMQC WHERE send_flag BETWEEN 1 and 9'); % flag 1 for BU, other flags not assigned yet
+%   [x_sent,f_sent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMQC WHERE send_flag BETWEEN 1 and 9'); % flag 1 for BU, other flags not assigned yet
+  [x_sent,f_sent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMQC WHERE (Send_flag=1 OR Send_flag=4 OR Send_flag=9)'); % flag 1 for sent to BU, 4 for 168-month sent, 9 for exclude
   pause(1);
   unique_sent_IDs = unique(x_sent(:,indcfind(f_sent,'^PatientID$','regexpi')));
 
@@ -54,6 +56,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
 
   % stop if no images to send
   if(size(x_send,1)<1)
+    disp('No images to send.');
     return;
   end
 
@@ -66,7 +69,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     end
   end
   if(size(del_ix,1)>0)
-    x_up(del_ix,:) = [];
+    x_send(del_ix,:) = [];
   end
 
   % stop if no images to send

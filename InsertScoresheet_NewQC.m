@@ -70,16 +70,19 @@ f_StudyBarcode = indcfind(f_in,'^StudyBarcode$','regexpi');
 f_SeriesBarcode = indcfind(f_in,'^SeriesBarcode$','regexpi');
 f_FileBarcode = indcfind(f_in,'^FileBarcode$','regexpi');
 
+f_Send_flag = indcfind(f_in,'^Send_flag$','regexpi');
 
 %% arrange table data
 
-jx_PA05 = indcfind(prefill_up(:,f_View),'^PA05$','regexpi');
-jx_PA10 = indcfind(prefill_up(:,f_View),'^PA10$','regexpi');
-jx_PA15 = indcfind(prefill_up(:,f_View),'^PA15$','regexpi');
-jx_RLAT = indcfind(prefill_up(:,f_View),'^RLAT$','regexpi');
-jx_LLAT = indcfind(prefill_up(:,f_View),'^LLAT$','regexpi');
+jx_PA05 = indcfind(prefill_up(:,f_View),'(^PA05$|Visit Bilateral PA Fixed Flexion - 5 degrees caudal)','regexpi');
+jx_PA10 = indcfind(prefill_up(:,f_View),'(^PA10$|Visit Bilateral PA Fixed Flexion - 10 degrees caudal)','regexpi');
+jx_PA15 = indcfind(prefill_up(:,f_View),'(^PA15$|Visit Bilateral PA Fixed Flexion - 15 degrees caudal)','regexpi');
+jx_RLAT = indcfind(prefill_up(:,f_View),'(^RLAT$|Visit Right Lateral)','regexpi');
+jx_LLAT = indcfind(prefill_up(:,f_View),'(^LLAT$|Visit Left Lateral)','regexpi');
 jx_FLMB = indcfind(prefill_up(:,f_View),'^Full Limb$','regexpi');
 jx_PAx = [jx_PA05; jx_PA10; jx_PA15];
+
+jx_newonly = find(cell2mat(prefill_up(:,f_Send_flag))==0);
 
 u_id = unique(prefill_up(:,f_PatientID));
 
@@ -124,63 +127,75 @@ for ix=1:size(u_id,1)
             tmpPA = 1;
             barcPA = prefill_up{tmpserx(1),f_SeriesBarcode}; 
             numPA = size(tmpserx,1); %originally included prev visits
-            recnPA = size(tmpserx,1); %num of recd images in this view
+            recnPA = size(intersect(tmpserx,jx_newonly),1); %num of recd images in this view
+            fbarcPA = prefill_up(intersect(tmpserx,jx_newonly),f_FileBarcode); 
         else
             tmpPA = 0;
             barcPA = '';
             numPA = 0;
             recnPA = 0;
+            fbarcPA = {};
         end
         tmpserx = intersect(tmpjx,jx_RLAT);
         if(~isempty(tmpserx))
             tmpRL = 1;
             barcRL = prefill_up{tmpserx(1),f_SeriesBarcode}; 
             numRL = size(tmpserx,1);
-            recnRL = size(tmpserx,1);
+            recnRL = size(intersect(tmpserx,jx_newonly),1);
+            fbarcRL = prefill_up(intersect(tmpserx,jx_newonly),f_FileBarcode); 
         else
             tmpRL = 0;
             barcRL = '';
             numRL = 0;
             recnRL = 0;
+            fbarcRL = {};
         end
         tmpserx = intersect(tmpjx,jx_LLAT);
         if(~isempty(tmpserx))
             tmpLL = 1;
             barcLL = prefill_up{tmpserx(1),f_SeriesBarcode}; 
             numLL = size(tmpserx,1);
-            recnLL = size(tmpserx,1);
+            recnLL = size(intersect(tmpserx,jx_newonly),1);
+            fbarcLL = prefill_up(intersect(tmpserx,jx_newonly),f_FileBarcode); 
         else
             tmpLL = 0;
             barcLL = '';
             numLL = 0;
             recnLL = 0;
+            fbarcLL = {};
         end
         tmpserx = intersect(tmpjx,jx_FLMB);
         if(~isempty(tmpserx))
             tmpFL = 1;
             barcFL = tmpstudy{tmpserx(1),f_SeriesBarcode}; 
             numFL = size(tmpserx,1);
-            recnFL = size(tmpserx,1);
+            recnFL = size(intersect(tmpserx,jx_newonly),1);
+            fbarcFL = prefill_up(intersect(tmpserx,jx_newonly),f_FileBarcode); 
         else
             tmpFL = 0;
             barcFL = '';
             numFL = 0;
             recnFL = 0;
+            fbarcFL = {};
         end
 
         if(recnPA>0)
             recPA = 1;
             if(recnPA==1)
                 tmpserx = intersect(tmpjx,jx_PAx);
-                bestPA = horzcat(barcPA,'01');
+%                 bestPA = horzcat(barcPA,'01');
+                bestPA = fbarcPA{1,1};
             else
                 bestPA = '';
             end
-            tmpserx = intersect(tmpjx,jx_PA05);
+            tmpserx = intersect(tmpjx,jx_PA05); 
+            tmpserx = intersect(tmpserx,jx_newonly);
             if(~isempty(tmpserx)); chk05 = -1; else; chk05 = 0; end
             tmpserx = intersect(tmpjx,jx_PA10);
+            tmpserx = intersect(tmpserx,jx_newonly);
             if(~isempty(tmpserx)); chk10 = -1; else; chk10 = 0; end
             tmpserx = intersect(tmpjx,jx_PA15);
+            tmpserx = intersect(tmpserx,jx_newonly);
             if(~isempty(tmpserx)); chk15 = -1; else; chk15 = 0; end
         else
             recPA = 0;
@@ -199,13 +214,15 @@ for ix=1:size(u_id,1)
         end
         if(recnRL==1)
             tmpserx = intersect(tmpjx,jx_RLAT);
-            bestRL = horzcat(barcRL,'01');
+%             bestRL = horzcat(barcRL,'01');
+            bestRL = fbarcRL{1,1};
         else
             bestRL = '';
         end
         if(recnLL==1)
             tmpserx = intersect(tmpjx,jx_LLAT);
-            bestLL = horzcat(barcLL,'01');
+%             bestLL = horzcat(barcLL,'01');
+            bestLL = fbarcLL{1,1};
         else
             bestLL = '';
         end
@@ -214,7 +231,8 @@ for ix=1:size(u_id,1)
             recFL = 1;
             if(recnFL==1)
                 tmpserx = intersect(tmpjx,jx_FLMB);
-                bestFL = horzcat(barcFL,'01');
+%                 bestFL = horzcat(barcFL,'01');
+                bestFL = fbarcFL{1,1};
             else
                 bestFL = '';
             end
