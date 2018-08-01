@@ -119,11 +119,11 @@ if(size(loop_series,1)>0)
       new_desc = horzcat(tmpdesc,' ',tmpacc3);
       
       tmpSOPUID = tmpinfo.SOPInstanceUID;
-      tmp_namefields = fieldnames(tmpinfo.PatientName);
-      tmp_patientname = '';
-      for nx=1:size(tmp_namefields,1)
-        tmp_patientname = horzcat(tmp_patientname,getfield(tmpinfo.PatientName,tmp_namefields{nx}));
-      end
+%       tmp_namefields = fieldnames(tmpinfo.PatientName);
+%       tmp_patientname = '';
+%       for nx=1:size(tmp_namefields,1)
+%         tmp_patientname = horzcat(tmp_patientname,getfield(tmpinfo.PatientName,tmp_namefields{nx}));
+%       end
 
       % copy file to blinding destination
       newf = horzcat(newdir,'\',tmpacc3);
@@ -147,7 +147,7 @@ if(size(loop_series,1)>0)
           tmpseries{fx,2} =  tmpSOPUID;
       end
       if(isempty(tmpseries{fx,4}))
-          tmpseries{fx,4} =  tmp_patientname;
+          tmpseries{fx,4} =  tmpname;
       end
 
       % generate blinding info

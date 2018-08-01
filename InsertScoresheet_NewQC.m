@@ -303,13 +303,13 @@ for ix=1:size(u_id,1)
         
         % construct table for accession numbers
         
-        tmp_barc = cell(size(tmpstudy,1),7);
-        tmp_barc(:,1) = tmpstudy(:,f_PatientID);
-        tmp_barc(:,2) = tmpstudy(:,f_FileBarcode);
-        tmp_barc(:,3) = tmpstudy(:,f_SeriesBarcode);
-        tmp_barc(:,5) = tmpstudy(:,f_View);
-        tmp_barc(:,6) = tmpstudy(:,f_StudyDate);
-        tmp_barc(:,7) = tmpstudy(:,f_SOPInstanceUID);
+        tmp_barc = cell(size(jx_newonly,1),7);
+        tmp_barc(:,1) = tmpstudy(jx_newonly,f_PatientID);
+        tmp_barc(:,2) = tmpstudy(jx_newonly,f_FileBarcode);
+        tmp_barc(:,3) = tmpstudy(jx_newonly,f_SeriesBarcode);
+        tmp_barc(:,5) = tmpstudy(jx_newonly,f_View);
+        tmp_barc(:,6) = tmpstudy(jx_newonly,f_StudyDate);
+        tmp_barc(:,7) = tmpstudy(jx_newonly,f_SOPInstanceUID);
         for jx=1:size(tmp_barc,1)
             tmpview = tmp_barc{jx,5};
             switch tmpview

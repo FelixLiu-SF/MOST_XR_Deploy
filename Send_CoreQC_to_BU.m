@@ -145,6 +145,7 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     
     % get IDs for sending as blank records
     prefill_up = x_up;
+    prefill_up = sortrows(prefill_up,[3,-5,6,2,1]);
 
     % Insert new blank records into scoresheet
     InsertScoresheet_NewQC(mdbf,prefill_up,f_send,dvd_date);
