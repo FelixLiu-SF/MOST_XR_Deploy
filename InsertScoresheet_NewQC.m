@@ -302,14 +302,14 @@ for ix=1:size(u_id,1)
             };
         
         % construct table for accession numbers
-        
-        tmp_barc = cell(size(jx_newonly,1),7);
-        tmp_barc(:,1) = tmpstudy(jx_newonly,f_PatientID);
-        tmp_barc(:,2) = tmpstudy(jx_newonly,f_FileBarcode);
-        tmp_barc(:,3) = tmpstudy(jx_newonly,f_SeriesBarcode);
-        tmp_barc(:,5) = tmpstudy(jx_newonly,f_View);
-        tmp_barc(:,6) = tmpstudy(jx_newonly,f_StudyDate);
-        tmp_barc(:,7) = tmpstudy(jx_newonly,f_SOPInstanceUID);
+        tmpserx = intersect(tmpjx,jx_newonly);
+        tmp_barc = cell(size(tmpserx,1),7);
+        tmp_barc(:,1) = prefill_up(tmpserx,f_PatientID);
+        tmp_barc(:,2) = prefill_up(tmpserx,f_FileBarcode);
+        tmp_barc(:,3) = prefill_up(tmpserx,f_SeriesBarcode);
+        tmp_barc(:,5) = prefill_up(tmpserx,f_View);
+        tmp_barc(:,6) = prefill_up(tmpserx,f_StudyDate);
+        tmp_barc(:,7) = prefill_up(tmpserx,f_SOPInstanceUID);
         for jx=1:size(tmp_barc,1)
             tmpview = tmp_barc{jx,5};
             switch tmpview
