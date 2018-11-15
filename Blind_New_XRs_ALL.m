@@ -34,13 +34,14 @@ accnum_qc = x_acc{1,indcfind(f_acc,'^QC$','regexpi')};
 accnum_sc = x_acc{1,indcfind(f_acc,'^Screening$','regexpi')};
 
 % all processed files, need to call this early in deployment for some reason, i have no idea why
-[x_qc,f_qc] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMQC');
+% table is getting too large, query by expected years 
+[x_qc,f_qc] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMQC WHERE StudyDate LIKE ''2018%'' OR StudyDate LIKE ''2019%'' OR StudyDate LIKE ''2020%''');
 pause(1);
-[x_screening,f_screening] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMScreening');
+[x_screening,f_screening] = DeployMDBquery(mdbf,'SELECT * FROM tblDICOMScreening WHERE StudyDate LIKE ''2017%'' OR StudyDate LIKE ''2018%'' OR StudyDate LIKE ''2019%''');
 pause(1);
 
 % all files and categories
-[x_category,f_category] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesCategory');
+[x_category,f_category] = DeployMDBquery(mdbf,'SELECT * FROM tblFilesCategory WHERE StudyDate LIKE ''2018%'' OR StudyDate LIKE ''2019%'' OR StudyDate LIKE ''2020%''');
 pause(1);
 
 % align columns
