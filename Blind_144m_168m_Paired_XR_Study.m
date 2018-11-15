@@ -93,6 +93,7 @@ if(size(loop_series,1)>0)
       tmpf = tmpseries{fx,f_filename};
       tmpacc3 = tmpseries{fx,f_FileBarcode};
       tmpdesc = tmpseries{fx,f_View};
+      tmpSOP = tmpseries{fx,f_SOPInstanceUID};
       
       % copy file to blinding destination
       newf = horzcat(newdir,'\',tmpacc3);
@@ -105,8 +106,16 @@ if(size(loop_series,1)>0)
       end
       
       % reblind series description
+      
       new_desc = horzcat(tmpdesc,' ',tmpacc3);
-      [exit_code]=MOST_XR_Anonymize(newf,{'(0008,103E)',new_desc,'i'});
+      
+      tagcell = {...
+      '(0008,103E)',new_desc,'i';...
+      '(0008,0018)',tmpSOP,'i';...
+      '','','imt';...
+      };
+  
+      [exit_code]=MOST_XR_Anonymize(newf,tagcell);
 
       % save new metadata
       tmpseries{fx,f_filename} = newf; 
