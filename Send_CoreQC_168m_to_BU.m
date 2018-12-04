@@ -66,7 +66,13 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
   [x_sent,f_sent] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMQC WHERE (Send_flag=5)'); % flag 5 for 144m reblinded for 168m pairing
   pause(1);
 
-  x_sent = x_sent(ismember(x_sent(:,indcfind(f_sent,'^PatientID$','regexpi')),unique_tosend_IDs),:);
+  if(size(x_sent,2)>1)
+      x_sent = x_sent(ismember(x_sent(:,indcfind(f_sent,'^PatientID$','regexpi')),unique_tosend_IDs),:);
+  
+      unique_sent_IDs = unique(x_sent(:,indcfind(f_sent,'^PatientID$','regexpi')));
+  else
+      unique_sent_IDs = {''};
+  end
   
   % stop if no images to send
   if(size(x_send,1)<1)
@@ -74,8 +80,23 @@ if(~exist(batch_dir,'dir')) % continue if this batch hasn't been made
     return;
   end  
   
+  % get IDs that are missing 144m films
+  unique_no144_IDs = setdiff(unique_tosend_IDs, unique_sent_IDs);
+  
   % combine 144m and 168m XRs
-  x_send = [x_send; x_sent];
+  if(size(x_sent,2)>1)
+      x_send = [x_send; x_sent];
+  end
+  
+  
+  % filter for for BL-84m XRs that have been previously sent for IDs missing 144m
+  [x_prev,f_prev] = DeployMDBquery(mdbf_qc,'SELECT * FROM tblDICOMQC WHERE (Send_flag=2)'); % flag 2 for BL-84m reblinded for 168m pairing
+  pause(1);
+
+  x_prev = x_prev(ismember(x_prev(:,indcfind(f_prev,'^PatientID$','regexpi')),unique_no144_IDs),:);
+  
+  % combine BL-84m XRs with 144m/168m XRs
+  x_send = [x_send; x_prev];
 
 
   % filter out exit_code errors %
