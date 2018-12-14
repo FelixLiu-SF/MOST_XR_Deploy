@@ -19,7 +19,7 @@ function []=DICOMByteFlip(file_in,file_out,mirror_rl,mirror_tb)
   fclose(fid);
 
   % reshape image
-  RawImgReshape(RawImg,imgsz(2),imgsz(1));
+  RawImgReshape = reshape(RawImg,imgsz(2),imgsz(1));
 
   MatchImg = RawImgReshape';
 
